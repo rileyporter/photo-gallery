@@ -1,0 +1,44 @@
+# _headers — Netlify-specific: Netlify reads this file automatically from
+# the publish directory and applies these as real HTTP response headers to
+# every request matching the path pattern below. This is here specifically
+# because a few security headers only take effect as actual HTTP headers —
+# a <meta> tag in index.html (see the CSP there) cannot set them.
+#
+# IF YOU HOST SOMEWHERE OTHER THAN NETLIFY: this file will simply be
+# ignored, not erroring, but also not doing anything.
+#   - Vercel: same idea, different format — a `headers` array in
+#     vercel.json instead of this file.
+#   - GitHub Pages: does not support custom response headers at all for
+#     static sites — this specific protection isn't available there. If
+#     clickjacking protection matters to you, that's a real reason to
+#     prefer Netlify or Vercel over GitHub Pages (see the earlier
+#     hosting comparison in this project's history / the design doc).
+#
+# /* applies to every path on the site (there's only one page here, but
+# this pattern is correct even if the site grows more routes later).
+/*
+  # Clickjacking protection: refuses to let ANY other site embed this one
+  # in an <iframe>. This is the header-only equivalent of the
+  # frame-ancestors CSP directive mentioned in index.html's comment.
+  X-Frame-Options: DENY
+
+  # Stops the browser from trying to "guess" a file's type from its
+  # content and instead trusting the Content-Type header the server
+  # actually sent — closes a narrow but real class of attack where a
+  # file is served as one type but interpreted as another (e.g. an
+  # uploaded image being executed as a script). Low-cost, standard
+  # practice even for a site with no uploads today.
+  X-Content-Type-Options: nosniff
+
+  # Controls how much of THIS site's URL gets sent as the Referer header
+  # when someone clicks a link away from it. strict-origin-when-cross-
+  # origin sends the full URL to same-site links, but only the origin
+  # (no path) to other sites — a reasonable, widely-used default that
+  # avoids leaking specific page paths to third parties unnecessarily.
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Explicitly denies access to a few sensitive browser APIs this site
+  # never uses. Costs nothing since none of these are needed, and closes
+  # off a theoretical avenue if a future dependency ever tried to use
+  # them unexpectedly.
+  Permissions-Policy: geolocation=(), camera=(), microphone=()

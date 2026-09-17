@@ -1,0 +1,402 @@
+/* Custom CSS rules that handle animations, custom behavior, or otherwise
+   don't map to default Tailwind css classes */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 0.2s; /* small state changes — cursor ring, close-button color */
+  --duration-base: 0.5s; /* larger transforms — shelf cover tilt/lift */
+  --site-accent: #E6A73C;
+}
+
+html {
+  scroll-behavior: smooth; /* smooth-scrolls for any anchor-style jumps */
+}
+
+body {
+  background-color: theme('colors.bg');
+  color: theme('colors.ink');
+}
+
+::selection {
+  background-color: theme('colors.secondary');
+  color: #14130F;
+}
+
+/* baseline keyboard focus as a default */
+:focus-visible {
+  outline: 2px solid theme('colors.accent');
+  outline-offset: 2px;
+}
+
+/* ##### Shelf Styling Properties ##### */
+.shelf-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.shelf-row::before {
+  content: '';
+  position: absolute;
+  top: -140px;
+  left: 50%;
+  translate: -50% 0;
+  width: min(70vw, 900px);
+  height: 280px;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 50% 50% at 50% 100%,
+    /* warm, low-opacity light glow */
+    rgba(255, 241, 209, 0.16) 0%,
+    rgba(255, 241, 209, 0.06) 45%,
+    transparent 75%
+  );
+  z-index: 0; /* sits behind .shelf-books */
+}
+
+/* Ensure the books themselves paint above the glow — necessary because
+   .shelf-row::before uses z-index:0 but establishes its own stacking
+   context; without this, a browser could in theory paint the glow over
+   the book covers instead of behind them. */
+.shelf-books,
+.shelf-ledge {
+  position: relative;
+  z-index: 1;
+}
+
+.shelf-books {
+  display: flex;
+  justify-content: center;
+  gap: clamp(1.25rem, 4vw, 3rem); /* responsive gap between books */
+  padding: 0 1.5rem;
+}
+
+.shelf-cover {
+  width: clamp(120px, 15vw, 190px); /* responsive cover width */
+  aspect-ratio: 2 / 3; /* standard-ish book-cover proportions */
+  overflow: hidden; /* clips the <img> inside to this rounded box */
+  border-radius: 2px;
+  cursor: pointer;
+  /* 
+  TODO(rileyporter): 3D tilting of books was breaking motion clickability. Disabled for now
+  transform-origin: bottom center;
+  background tilt 22deg 
+  transform: rotateX(22deg);
+  */
+  box-shadow: 0 26px 34px -18px rgba(0, 0, 0, 0.65);
+  transition: transform var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.shelf-cover:hover,
+.shelf-cover:focus-visible {
+  /* 
+  TODO(rileyporter): Continued from above, tilting books slightly broken
+  On hover/keyboard-focus, the book comes forward toward upright
+     (rotateX drops from 22deg to 6deg)
+  transform: rotateX(6deg) translateY(-10px); 
+  */
+  box-shadow:
+    0 34px 44px -16px rgba(0, 0, 0, 0.75),
+    0 0 46px -6px color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 55%, transparent);
+}
+
+.shelf-cover:focus-visible {
+  outline: 2px solid var(--book-accent, theme('colors.accent'));
+  outline-offset: 6px;
+}
+
+.shelf-ledge {
+  /* The horizontal "plinth" the books visually rest on — pure CSS
+     gradient/shadow, no image asset. */
+  margin-top: -4px;
+  width: min(92vw, 980px);
+  height: 22px;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #211f1a 0%, #171510 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 18px 26px -12px rgba(0, 0, 0, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Respects the OS-level "reduce motion" accessibility setting — the
+     hover transform still happens (position/state still changes) but
+     without the animated transition between states. */
+  .shelf-cover {
+    transition: none;
+  }
+}
+
+/* ##### CUSTOM CURSOR STYLES ##### */
+
+/* Hides the native OS pointer specifically over opted-in elements — the
+   custom ring (below) takes its place there. Everywhere else on the
+   page, the native cursor is untouched. */
+[data-cursor] {
+  cursor: none;
+}
+
+.custom-cursor {
+  /* Positioned at (0,0) and then moved entirely via `transform:
+     translate3d(...)`, written directly by Cursor.tsx on every
+     mousemove event */
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* must never itself intercept clicks */
+  z-index: 100; /* above everything, including the reader (z-50) and its close button (z-10) */
+  transform: translate3d(-100px, -100px, 0); /* position off-screen at first */
+}
+
+.custom-cursor-ring {
+  /* Centers the ring on the tracked point (translate3d above positions
+     this element's top-left corner at the cursor, not its center). */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%) scale(0.8);
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  border: 1px solid var(--cursor-color);
+  color: var(--cursor-color);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  opacity: 0; /* hidden by default; .is-active below reveals it */
+  transition: opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.custom-cursor.is-active .custom-cursor-ring {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .custom-cursor-ring {
+    transition: none;
+  }
+}
+
+.page-nav-zone:disabled {
+  cursor: auto;
+} 
+
+/* ##### Book Reader Styling Properties ##### */
+
+/* Transition for cursor color on close button */
+.reader-close {
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.reader-close:focus-visible {
+  outline: 2px solid var(--book-accent, theme('colors.accent'));
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.reader-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0; /* behind .reader-track (z-index: 1, above) and the close button (z-10) */
+  background: radial-gradient(
+    ellipse 80% 55% at 50% 100%,
+    color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 20%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+/* ##### Paper Grain Styling ##### */
+
+/* 
+  A very subtle noise texture layered over each book page — the detail
+  that pushes an open book toward "printed object" rather than "photo
+  in a browser tab".
+
+  Implementation: an inline SVG data URI using <feTurbulence>, a filter
+  primitive that procedurally generates noise — this avoids shipping an
+  actual image file for something this small and endlessly tileable.
+  `mix-blend-mode: overlay` is what makes it read as texture rather than
+  a layer of static sitting on top: overlay blends based on the
+  underlying color/lightness at each point, so the grain darkens light
+  areas and lightens dark areas slightly, the way paper fiber actually
+  interacts with whatever's printed on it — including photos, since this
+  is applied at the .reader-page level, above both text and images.
+*/
+
+.reader-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* must never block clicks/scroll on the actual page content beneath it */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px 180px; /* smaller = finer/denser grain, larger = coarser */
+  opacity: 0.05; /* deliberately low */
+  mix-blend-mode: overlay;
+}
+
+.page-heading {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.page-paragraph {
+  font-family: 'Fraunces', serif;
+  font-optical-sizing: auto;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  margin-bottom: 1.1rem;
+}
+
+.page-text.small .page-paragraph {
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* The drop cap styling */
+.page-paragraph.first::first-letter {
+  float: left; /* lets the following text wrap around the drop cap, like print typesetting */
+  font-size: 3.6rem;
+  line-height: 0.8;
+  padding-right: 0.5rem;
+  padding-top: 0.3rem;
+  font-style: normal; /* overrides italic to keep the drop cap upright regardless */
+}
+
+.book-object {
+  position: relative;
+  display: flex;
+  width: min(52vw, 640px);
+  height: min(88vh, 920px);
+  perspective: 2200px;
+  box-shadow: 0 60px 100px -30px rgba(0, 0, 0, 0.7);
+}
+
+.book-left-panel {
+  position: relative;
+  flex-shrink: 0;
+  width: 12%;
+  height: 100%;
+  transform-origin: right center;
+  transform: rotateY(70deg);
+}
+
+.book-left-panel-page-stack {
+  position: absolute;
+  right: 0; /* anchored to the spine side, so it grows outwards toward the edge */
+  top: 0;
+  height: 100%;
+  background: color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 55%, black);
+  transition: width var(--duration-base) var(--ease-standard);
+}
+
+.book-spine {
+  flex-shrink: 0;
+  width: 14px;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.15));
+}
+
+.book-right-panel {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+}
+
+.page-stack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 2200px;
+}
+
+.reader-page-flat {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-turning {
+  z-index: 2;
+}
+
+.page-turn-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.page-nav-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 25%; /* quarter-page zones */
+  z-index: 3;
+  background: transparent;
+  border: none;
+}
+.page-nav-left {
+  left: 0;
+}
+.page-nav-right {
+  right: 0;
+}
+
+/* ##### Book Progress Bar Styling ##### */
+
+.book-progress {
+  -webkit-appearance: none;
+  appearance: none;
+  /* TODO(rileyporter): make this a variable so the book and progress bar are always the same */
+  width: min(52vw, 640px); /* matches .book-object's width */
+  height: 4px;
+  border-radius: 999px;
+  outline: none;
+  cursor: none;
+}
+
+.book-progress::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--book-accent, theme('colors.accent'));
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.4);
+  cursor: none;
+}
+
+.book-progress::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: var(--book-accent, theme('colors.accent'));
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.4);
+  cursor: none;
+}
+
+.book-progress::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: transparent; /* fill comes from the inline gradient on the input itself */
+}
+
+.book-progress:focus-visible {
+  outline: 2px solid var(--book-accent, theme('colors.accent'));
+  outline-offset: 4px;
+}
