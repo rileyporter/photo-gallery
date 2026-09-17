@@ -13,6 +13,7 @@ dist-ssr
 # Local environment variable files
 .env
 .env.local
+.vscode/
 
 # Ignore image assets in the public directory
 /public/photos/

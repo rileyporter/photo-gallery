@@ -76,41 +76,6 @@ body {
   padding: 0 1.5rem;
 }
 
-.shelf-cover {
-  width: clamp(120px, 15vw, 190px); /* responsive cover width */
-  aspect-ratio: 2 / 3; /* standard-ish book-cover proportions */
-  overflow: hidden; /* clips the <img> inside to this rounded box */
-  border-radius: 2px;
-  cursor: pointer;
-  /* 
-  TODO(rileyporter): 3D tilting of books was breaking motion clickability. Disabled for now
-  transform-origin: bottom center;
-  background tilt 22deg 
-  transform: rotateX(22deg);
-  */
-  box-shadow: 0 26px 34px -18px rgba(0, 0, 0, 0.65);
-  transition: transform var(--duration-base) var(--ease-standard),
-    box-shadow var(--duration-base) var(--ease-standard);
-}
-
-.shelf-cover:hover,
-.shelf-cover:focus-visible {
-  /* 
-  TODO(rileyporter): Continued from above, tilting books slightly broken
-  On hover/keyboard-focus, the book comes forward toward upright
-     (rotateX drops from 22deg to 6deg)
-  transform: rotateX(6deg) translateY(-10px); 
-  */
-  box-shadow:
-    0 34px 44px -16px rgba(0, 0, 0, 0.75),
-    0 0 46px -6px color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 55%, transparent);
-}
-
-.shelf-cover:focus-visible {
-  outline: 2px solid var(--book-accent, theme('colors.accent'));
-  outline-offset: 6px;
-}
-
 .shelf-ledge {
   /* The horizontal "plinth" the books visually rest on — pure CSS
      gradient/shadow, no image asset. */
@@ -124,6 +89,22 @@ body {
     0 18px 26px -12px rgba(0, 0, 0, 0.7);
 }
 
+/* ##### Book 3D Solid Styling ##### */
+
+
+.shelf-cover:hover,
+.shelf-cover:focus-visible {
+  box-shadow:
+    0 34px 44px -16px rgba(0, 0, 0, 0.75),
+    0 0 46px -6px color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 55%, transparent);
+}
+
+.shelf-cover:focus-visible {
+  outline: 2px solid var(--book-accent, theme('colors.accent'));
+  outline-offset: 6px;
+}
+
+
 @media (prefers-reduced-motion: reduce) {
   /* Respects the OS-level "reduce motion" accessibility setting — the
      hover transform still happens (position/state still changes) but
@@ -133,7 +114,102 @@ body {
   }
 }
 
-/* ##### CUSTOM CURSOR STYLES ##### */
+.shelf-cover-wrap {
+  --book-w: clamp(120px, 15vw, 190px);
+  --book-h: calc(var(--book-w) * 1.5);
+  --book-d: 22px;
+  perspective: 2400px; /* large value → less per-book distortion */
+  transform-style: preserve-3d;
+}
+
+.book-volume {
+  position: relative;
+  width: var(--book-w);
+  height: var(--book-h);
+  transform-style: preserve-3d;
+  cursor: pointer;
+  transform-origin: bottom center;
+  /* rotateX tilts the top toward the viewer; rotateY(-18deg) angles the
+     book so the spine on the left becomes visible */
+  transform: rotateX(22deg) rotateY(18deg);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+/*
+Book hovering off the shelf when hovered over
+.book-volume:hover,
+.book-volume:focus-visible {
+  transform: rotateX(6deg) translateY(-10px);
+} */
+
+.book-volume:focus-visible {
+  outline: 2px solid var(--accent, theme('colors.accent'));
+  outline-offset: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-volume {
+    transition: none;
+  }
+}
+
+.book-face-front,
+.book-face-spine,
+.book-face-pages,
+.book-face-top {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  backface-visibility: hidden;
+}
+
+.book-face-front {
+  width: 100%;
+  height: 100%;
+  transform: translateZ(calc(var(--book-d) / 2));
+}
+
+.book-cover-plane {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow: 0 26px 34px -18px rgba(0, 0, 0, 0.65);
+}
+
+/* rotateY(-90deg): front normal → LEFT (−X). translateZ pushes face
+   outward along the face's own new Z axis (= world −X), landing at
+   x = −book-w/2 (left edge). */
+.book-face-spine {
+  width: var(--book-d);
+  height: var(--book-h);
+  transform: rotateY(-90deg) translateZ(calc(var(--book-w) / 2));
+  background: color-mix(in srgb, var(--accent, #6E8B7A) 60%, black);
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+/* rotateY(90deg): front normal → RIGHT (+X). Lands at x = +book-w/2. */
+.book-face-pages {
+  width: var(--book-d);
+  height: var(--book-h);
+  transform: rotateY(90deg) translateZ(calc(var(--book-w) / 2));
+  background: #EDE7DA;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+/* rotateX(90deg): front normal → UP (−Y in CSS). translateZ pushes face
+   up along the face's own new Z axis (= world −Y), landing at
+   y = −book-h/2 (top edge). rotateX(-90deg) would point normal DOWN
+   and backface-visibility would hide it. */
+.book-face-top {
+  width: var(--book-w);
+  height: var(--book-d);
+  transform: rotateX(90deg) translateZ(calc(var(--book-h) / 2));
+  background: color-mix(in srgb, var(--accent, #6E8B7A) 35%, white);
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+/* ##### Custom Cursor Styling ##### */
 
 /* Hides the native OS pointer specifically over opted-in elements — the
    custom ring (below) takes its place there. Everywhere else on the
@@ -188,7 +264,7 @@ body {
   cursor: auto;
 } 
 
-/* ##### Book Reader Styling Properties ##### */
+/* ##### Open Book Styling Properties ##### */
 
 /* Transition for cursor color on close button */
 .reader-close {
@@ -244,6 +320,17 @@ body {
   mix-blend-mode: overlay;
 }
 
+.reader-page-flat {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
 .page-heading {
   font-family: 'Fraunces', serif;
   font-style: italic;
@@ -274,11 +361,15 @@ body {
   font-style: normal; /* overrides italic to keep the drop cap upright regardless */
 }
 
+.image-block {
+  object-fit: contain;
+}
+
 .book-object {
   position: relative;
   display: flex;
-  width: min(52vw, 640px);
-  height: min(88vh, 920px);
+  width: 93vw;
+  height: 75vh;
   perspective: 2200px;
   box-shadow: 0 60px 100px -30px rgba(0, 0, 0, 0.7);
 }
@@ -286,7 +377,7 @@ body {
 .book-left-panel {
   position: relative;
   flex-shrink: 0;
-  width: 12%;
+  width: 10%;
   height: 100%;
   transform-origin: right center;
   transform: rotateY(70deg);
@@ -320,14 +411,6 @@ body {
   width: 100%;
   height: 100%;
   perspective: 2200px;
-}
-
-.reader-page-flat {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .page-turning {

@@ -1,4 +1,4 @@
-// Component for a single closed book on the shelf
+// Component for a single closed 3D book volume on the shelf
 //
 // Uses a shared `layoutId` with the open book display for animating
 // transitions between picking up a book and closing it.
@@ -14,29 +14,37 @@ interface ClosedBookProps {
 }
 
 export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) {
+  const wrapStyle: CSSVarStyle = {'--accent': book.accentColor }
 
-  const wrapStyle: CSSVarStyle = {'--book-accent': book.accentColor }
+  const decorativeStyle = { opacity: hidden ? 0 : 1 }
 
   return (
-    // Outer wrapper for CSS styling that is separate from motion div which is animated
     <div className="shelf-cover-wrap" style={wrapStyle}>
-      <motion.div
-        layoutId={`book-${book.slug}`}
-        className="shelf-cover"
-        // Hide the currently open book instead of unmounting it to make 
-        // animating between open and closed version possible
-        style={{ visibility: hidden ? 'hidden' : 'visible' }}
+      <div
+        className="book-volume"
         onClick={() => onSelect(book.slug)}
-        // This div acts like a button. Using a div instead of a <button>
-        // for ease of animation and styling
         role="button"
         tabIndex={0}
-        aria-label="Open book"
+        aria-label={`Open ${book.title}`}
         onKeyDown={(e) => e.key === 'Enter' && onSelect(book.slug)}
         data-cursor="open"
       >
-        <img src={book.cover} alt="" loading="lazy" className="h-full w-full object-cover" />
-      </motion.div>
+        {/* Front cover: pushed toward the viewer on a plain wrapper —
+            the motion.div inside carries no transform of its own. */}
+        <div className="book-face-front">
+          <motion.div
+            layoutId={`book-${book.slug}`}
+            className="book-cover-plane"
+            style={{ visibility: hidden ? 'hidden' : 'visible' }}
+          >
+            <img src={book.cover} alt="" loading="lazy" className="h-full w-full object-cover" />
+          </motion.div>
+        </div>
+
+        <div className="book-face-spine" style={decorativeStyle} />
+        <div className="book-face-pages" style={decorativeStyle} />
+        <div className="book-face-top" style={decorativeStyle} />
+      </div>
     </div>
   )
 }

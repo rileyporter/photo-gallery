@@ -43,8 +43,6 @@ npm run dev
   when interacting with the book. For example, there are various UI elements when
   the book is open and a soft glow behind the closed book on hover.
 
-
-
 ## ToDo
 - Fix book tilt click bug. Have to manually trigger a click to get motion to find the book
 - Swap to a 3D book element with a cover
@@ -63,6 +61,7 @@ npm run dev
 - Play with page grain
 - Choose different fonts for the page and fix the first letter paragraph styling
 - Test on mobile
+- Protect images from being scraped, downloaded and saved
 
 ### Add a React Router
 

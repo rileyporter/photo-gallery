@@ -96,7 +96,7 @@ function renderImageBlock(block: ImageBlock) {
       src={block.src}
       alt={block.alt}
       loading="lazy"
-      className="object-contain w-auto h-auto min-w-0 max-w-full max-h-full"
+      className="image-block object-contain w-auto h-auto min-w-0 max-w-full max-h-full"
       style={{ maxHeight: IMAGE_MAX_HEIGHT[block.size] }}
     />
   )
@@ -136,7 +136,7 @@ function renderBlock(
   return (
     <div
       key={index}
-      className="flex min-w-0 shrink"
+      className="flex min-w-0 min-h-0 max-w-full max-h-full shrink overflow-hidden"
       style={{
         flex: '0 1 auto',
         justifyContent: JUSTIFY[h],
