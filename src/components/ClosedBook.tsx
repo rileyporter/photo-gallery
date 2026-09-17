@@ -37,7 +37,19 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
             className="book-cover-plane"
             style={{ visibility: hidden ? 'hidden' : 'visible' }}
           >
-            <img src={book.cover} alt="" loading="lazy" className="h-full w-full object-cover" />
+            <div className="book-cover-content" style={{ backgroundColor: book.accentColor }}>
+              <div className="flex mt-8 min-h-0 min-w-0">
+                <img
+                  src={book.cover.src}
+                  alt={book.cover.alt}
+                  loading="lazy"
+                  className="max-h-full max-w-full h-auto w-auto"
+                />
+              </div>
+              <p className="book-cover-title" style={{ color: book.cover.textColor }}>
+                {book.title}
+              </p>
+            </div>
           </motion.div>
         </div>
 

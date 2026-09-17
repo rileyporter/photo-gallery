@@ -55,9 +55,15 @@ export interface Page {
   blocks: PageBlock[]
 }
 
+interface Cover {
+  src: string
+  alt: string
+  textColor: string
+}
+
 export interface Book {
   slug: string
-  cover: string
+  cover: Cover
   accentColor: string
   title: string
   description: string
@@ -77,7 +83,11 @@ export const shelves: Shelf[] = [
     books: [
       createBook({
         slug: 'japan-and-korea',
-        cover: '/photos/japan-korea/DSC00002.JPG',
+        cover: {
+          src: '/photos/japan-korea/DSC00002.JPG',
+          alt: '',
+          textColor: '#f4d06f',
+        },
         accentColor: '#19807c',
         title: 'Japan and South Korea',
         description: 'Trip to Japan and South Korea 2024',
@@ -134,7 +144,11 @@ export const shelves: Shelf[] = [
 
       createBook({
         slug: 'san-juans',
-        cover: '/photos/san-juans/DSC07547.JPG',
+        cover: {
+          src: '/photos/san-juans/DSC07547.JPG',
+          alt: '',
+          textColor: '#1b29e1',
+        },
         accentColor: '#48bbfd',
         title: 'San Juans',
         description: 'Sailing with friends and seeing ferries in the san juans',
@@ -164,9 +178,13 @@ export const shelves: Shelf[] = [
     books: [
       createBook({
         slug: 'taiwan',
-        cover: '/photos/taiwan/DSC08597.JPG',
+        cover: {
+          src: '/photos/taiwan/DSC08597.JPG',
+          alt: '',
+          textColor: '#a6f46f',
+        },
         accentColor: '#0a8a2a',
-        title: 'Taiwain',
+        title: 'Taiwan',
         description: 'Exploring Formosa with friends',
         pages: [
           {
@@ -244,24 +262,6 @@ export const shelves: Shelf[] = [
                 justify: {horizontal: 'right' },
                 body: 'Rocks with water at Taroko Gorge'
               },
-            ],
-          },
-          {
-            backgroundColor: '#EDE7DA',
-            textColor: '#23a2b0',
-            blocks: [
-              { 
-                type: 'image',
-                size: 'full',
-                src: '/photos/japan-korea/DSC00041.JPG',
-                alt: '' 
-              },
-              {
-                type: 'text',
-                size: 'small',
-                position: { vertical: 'bottom' },
-                body: 'cozy Jeju cafes'
-              }
             ],
           },
           {
