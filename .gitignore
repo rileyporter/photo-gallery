@@ -17,5 +17,6 @@ dist-ssr
 # Ignore image assets in the public directory
 /public/photos/
 *.jpg
+*.JPG
 *.jpeg
 *.png
