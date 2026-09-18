@@ -120,7 +120,7 @@ body {
 .book-volume-wrap {
   --book-w: clamp(120px, 15vw, 190px);
   --book-h: calc(var(--book-w) * 1.5);
-  --book-d: 30px;
+  --book-d: clamp(5px, calc(var(--book-length) * var(--book-w) * 0.02), 50px);
   --book-page-color: #EDE7DA;
   --book-page-left-shift: calc(var(--book-w) * 0.015);
   --book-page-up-shift:  calc(var(--book-h) * 0.01);
