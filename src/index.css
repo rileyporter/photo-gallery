@@ -90,6 +90,7 @@ body {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
     0 18px 26px -12px rgba(0, 0, 0, 0.7);
+  visibility: hidden;
 }
 
 /* ##### Book 3D Solid Styling ##### */
@@ -121,6 +122,8 @@ body {
   --book-h: calc(var(--book-w) * 1.5);
   --book-d: 30px;
   --book-page-color: #EDE7DA;
+  --book-page-left-shift: calc(var(--book-w) * 0.015);
+  --book-page-up-shift:  calc(var(--book-h) * 0.01);
   perspective: 2400px; /* large value → less per-book distortion */
   transform-style: preserve-3d;
   position: relative;
@@ -137,27 +140,6 @@ body {
   transition: transform var(--duration-base) var(--ease-standard);
 }
 
-.book-shadow {
-  position: absolute;
-  bottom: -6px;
-  left: 50%;
-  translate: -50% 0;
-  width: calc(var(--book-w) * 0.85);
-  height: 16px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.55) 0%, transparent 70%);
-  filter: blur(4px);
-  pointer-events: none;
-  transition: opacity var(--duration-base) var(--ease-standard),
-    transform var(--duration-base) var(--ease-standard);
-}
-
-.book-volume-wrap:has(.book-volume:hover) .book-shadow,
-.book-volume-wrap:has(.book-volume:focus-visible) .book-shadow {
-  opacity: 0.7;
-  transform: scale(1.08);
-}
-
 .book-hit-area {
   /* Stable target for hover and click behavior while book animates */
   position: relative;
@@ -172,7 +154,7 @@ body {
 }
 
 .book-volume:focus-visible {
-  outline: 2px solid var(--accent, theme('colors.accent'));
+  outline: 2px solid var(--book-accent, theme('colors.accent'));
   outline-offset: 6px;
 }
 
@@ -183,9 +165,9 @@ body {
 }
 
 .book-face-front,
-.book-face-spine,
-.book-face-pages,
-.book-face-top {
+.book-spine,
+.book-right-pages,
+.book-cover-bottom {
   position: absolute;
   inset: 0;
   margin: auto;
@@ -193,17 +175,16 @@ body {
 }
 
 .book-face-front {
-  width: 100%;
-  height: 100%;
-  transform: translateZ(calc(var(--book-d) / 2));
+  transform: translateZ(var(--book-d));
 }
 
-.book-cover-plane {
+.book-cover-top, .book-cover-bottom {
   width: 100%;
   height: 100%;
   overflow: hidden;
   border-radius: 2px;
   box-shadow: 0 26px 34px -18px rgba(0, 0, 0, 0.65);
+  background-color: var(--book-accent);
 }
 
 .book-cover-content {
@@ -228,36 +209,37 @@ body {
   padding: 0 0.25rem;
 }
 
-/* rotateY(-90deg): front normal → LEFT (−X). translateZ pushes face
-   outward along the face's own new Z axis (= world −X), landing at
-   x = −book-w/2 (left edge). */
+/* ##### Book Spine ##### */
+
 .book-face-spine {
   width: var(--book-d);
   height: var(--book-h);
   transform: rotateY(-90deg) translateZ(calc(var(--book-w) / 2));
-  background: var(--accent);
+  background: var(--book-accent);
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
-/* rotateY(90deg): front normal → RIGHT (+X). Lands at x = +book-w/2. */
-.book-face-pages {
+/* ##### Book Bottom and Book Pages ##### */
+
+.book-right-pages {
   width: var(--book-d);
-  height: var(--book-h);
-  transform: rotateY(90deg) translateZ(calc(var(--book-w) / 2));
+  height: calc(var(--book-h) - 2 * var(--book-page-up-shift));
+  transform: 
+    translateX(calc(var(--book-w) / 2 - var(--book-page-left-shift)))
+    rotateY(90deg)
+    translateX(calc(var(--book-d)  / -2));
   background: var(--book-page-color);
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
-/* rotateX(90deg): front normal → UP (−Y in CSS). translateZ pushes face
-   up along the face's own new Z axis (= world −Y), landing at
-   y = −book-h/2 (top edge). rotateX(-90deg) would point normal DOWN
-   and backface-visibility would hide it. */
-.book-face-bottom {
-  width: var(--book-w);
+.book-bottom-pages {
+  width: calc(var(--book-w) - var(--book-page-left-shift));
   height: var(--book-d);
-  transform: rotateX(90deg) translateZ(calc(-1 * var(--book-h) + var(--book-d) / 2));
-   /* translateZ(calc(var(--book-h) / 2)); */
-  background: color-mix(in srgb, var(--accent, theme('colors.secondary')) 35%, var(--book-page-color));
+  transform:
+    translateY(calc(var(--book-h) - var(--book-d) / 2 - var(--book-page-up-shift)))
+    rotateX(90deg)
+    translateY(calc(var(--book-d) / 2));
+  background: color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 35%, var(--book-page-color)); 
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 

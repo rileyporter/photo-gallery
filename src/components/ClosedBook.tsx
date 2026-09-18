@@ -14,14 +14,12 @@ interface ClosedBookProps {
 }
 
 export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) {
-  const wrapStyle: CSSVarStyle = {'--accent': book.accentColor }
+  const wrapStyle: CSSVarStyle = {'--book-accent': book.accentColor }
 
-  const decorativeStyle = { opacity: hidden ? 0 : 1 }
+  const toggleOpacity = { opacity: hidden ? 0 : 1 }
 
   return (
     <div className="book-volume-wrap" style={wrapStyle}>
-      <div className="book-shadow" />
-
       <div
         className="book-hit-area"
         onClick={() => onSelect(book.slug)}
@@ -34,13 +32,13 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
         <div className="book-volume">
           {/* Front cover: pushed toward the viewer on a plain wrapper —
               the motion.div inside carries no transform of its own. */}
-          <div className="book-face-front" data-cursor="open">
+          <div className="book-face-front">
             <motion.div
               layoutId={`book-${book.slug}`}
-              className="book-cover-plane"
+              className="book-cover-top"
               style={{ visibility: hidden ? 'hidden' : 'visible' }}
             >
-              <div className="book-cover-content" style={{ backgroundColor: book.accentColor }}>
+              <div className="book-cover-content">
                 <div className="flex mt-8 min-h-0 min-w-0">
                   <img
                     src={book.cover.src}
@@ -56,9 +54,15 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
             </motion.div>
           </div>
 
-          <div className="book-face-spine" style={decorativeStyle} />
-          <div className="book-face-pages" style={decorativeStyle} />
-          <div className="book-face-bottom" style={decorativeStyle} />
+          <div className="book-spine" style={toggleOpacity}>
+            <div className="book-face-spine" />
+            <div className="book-spine-front" />
+            <div className="book-spine-bottom" />
+          </div>
+
+          <div className="book-right-pages" style={toggleOpacity} />
+          <div className="book-bottom-pages" style={toggleOpacity} />
+          <div className="book-cover-bottom" style={toggleOpacity} />
         </div>
       </div>
     </div>

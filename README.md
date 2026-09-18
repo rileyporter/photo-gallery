@@ -66,6 +66,7 @@ npm run dev
 - move general styling rules to Tailwind classes when possible to colocate
 - add a "shelf background" line to indicate where the shelf intersects with the wall if the books
   are resting 22% back.
+- Look at shifting the 3D book divs to svg
 
 ### Add a React Router
 
