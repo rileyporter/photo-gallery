@@ -62,6 +62,8 @@ npm run dev
 - Choose different fonts for the page and fix the first letter paragraph styling
 - Test on mobile
 - Protect images from being scraped, downloaded and saved
+- move root styling rules to `@layer base` in CSS
+- move general styling rules to Tailwind classes when possible to colocate
 
 ### Add a React Router
 

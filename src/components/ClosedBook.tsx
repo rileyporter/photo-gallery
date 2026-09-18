@@ -19,7 +19,8 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
   const decorativeStyle = { opacity: hidden ? 0 : 1 }
 
   return (
-    <div className="shelf-cover-wrap" style={wrapStyle}>
+    <div className="book-volume-wrap" style={wrapStyle}>
+      <div className="book-shadow" />
       <div
         className="book-volume"
         onClick={() => onSelect(book.slug)}
@@ -55,7 +56,7 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
 
         <div className="book-face-spine" style={decorativeStyle} />
         <div className="book-face-pages" style={decorativeStyle} />
-        <div className="book-face-top" style={decorativeStyle} />
+        <div className="book-face-bottom" style={decorativeStyle} />
       </div>
     </div>
   )

@@ -9,6 +9,11 @@
   --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 0.2s; /* small state changes — cursor ring, close-button color */
   --duration-base: 0.5s; /* larger transforms — shelf cover tilt/lift */
+  --site-bg: #cbe8fa;
+  --site-ink: #5c4304;
+  --site-muted: #948C7B;
+  --site-secondary: #a6bbc5;
+  --site-line: #2A2822;
   --site-accent: #E6A73C;
 }
 
@@ -23,7 +28,7 @@ body {
 
 ::selection {
   background-color: theme('colors.secondary');
-  color: #14130F;
+  color: theme('colors.bg');
 }
 
 /* baseline keyboard focus as a default */
@@ -43,10 +48,9 @@ body {
 .shelf-row::before {
   content: '';
   position: absolute;
-  top: -140px;
   left: 50%;
   translate: -50% 0;
-  width: min(70vw, 900px);
+  width: min(92vw, 980px);
   height: 280px;
   pointer-events: none;
   background: radial-gradient(
@@ -77,29 +81,27 @@ body {
 }
 
 .shelf-ledge {
-  /* The horizontal "plinth" the books visually rest on — pure CSS
-     gradient/shadow, no image asset. */
   margin-top: -4px;
   width: min(92vw, 980px);
   height: 22px;
   border-radius: 1px;
-  background: linear-gradient(180deg, #211f1a 0%, #171510 100%);
+  background: linear-gradient(180deg, theme('colors.bg') 0%, theme('colors.secondary') 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
     0 18px 26px -12px rgba(0, 0, 0, 0.7);
+    /* visibility: hidden; */
 }
 
 /* ##### Book 3D Solid Styling ##### */
 
-
-.shelf-cover:hover,
-.shelf-cover:focus-visible {
+.book-volume:hover,
+.book-volume:focus-visible {
   box-shadow:
     0 34px 44px -16px rgba(0, 0, 0, 0.75),
     0 0 46px -6px color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 55%, transparent);
 }
 
-.shelf-cover:focus-visible {
+.book-volume:focus-visible {
   outline: 2px solid var(--book-accent, theme('colors.accent'));
   outline-offset: 6px;
 }
@@ -109,17 +111,18 @@ body {
   /* Respects the OS-level "reduce motion" accessibility setting — the
      hover transform still happens (position/state still changes) but
      without the animated transition between states. */
-  .shelf-cover {
+  .book-volume {
     transition: none;
   }
 }
 
-.shelf-cover-wrap {
+.book-volume-wrap {
   --book-w: clamp(120px, 15vw, 190px);
   --book-h: calc(var(--book-w) * 1.5);
-  --book-d: 22px;
+  --book-d: 30px;
   perspective: 2400px; /* large value → less per-book distortion */
   transform-style: preserve-3d;
+  position: relative;
 }
 
 .book-volume {
@@ -129,18 +132,36 @@ body {
   transform-style: preserve-3d;
   cursor: pointer;
   transform-origin: bottom center;
-  /* rotateX tilts the top toward the viewer; rotateY(-18deg) angles the
-     book so the spine on the left becomes visible */
-  transform: rotateX(22deg) rotateY(18deg);
+  transform: rotateX(22deg);
   transition: transform var(--duration-base) var(--ease-standard);
 }
 
-/*
-Book hovering off the shelf when hovered over
+.book-shadow {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  translate: -50% 0;
+  width: calc(var(--book-w) * 0.85);
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.55) 0%, transparent 70%);
+  filter: blur(4px);
+  pointer-events: none;
+  transition: opacity var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
+}
+
+.book-volume-wrap:has(.book-volume:hover) .book-shadow,
+.book-volume-wrap:has(.book-volume:focus-visible) .book-shadow {
+  opacity: 0.7;
+  transform: scale(1.08);
+}
+
+/* Book hovering off the shelf when hovered over */
 .book-volume:hover,
 .book-volume:focus-visible {
-  transform: rotateX(6deg) translateY(-10px);
-} */
+  transform: rotateX(22deg) rotateY(-10deg) translateY(-15px);
+}
 
 .book-volume:focus-visible {
   outline: 2px solid var(--accent, theme('colors.accent'));
@@ -180,10 +201,8 @@ Book hovering off the shelf when hovered over
 .book-cover-content {
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
   padding: 0.75rem;
+  position: relative;
 }
 
 .book-cover-title {
@@ -208,7 +227,7 @@ Book hovering off the shelf when hovered over
   width: var(--book-d);
   height: var(--book-h);
   transform: rotateY(-90deg) translateZ(calc(var(--book-w) / 2));
-  background: color-mix(in srgb, var(--accent, #6E8B7A) 60%, black);
+  background: color-mix(in srgb, var(--accent, theme('colors.secondary')) 60%, black);
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
@@ -225,11 +244,12 @@ Book hovering off the shelf when hovered over
    up along the face's own new Z axis (= world −Y), landing at
    y = −book-h/2 (top edge). rotateX(-90deg) would point normal DOWN
    and backface-visibility would hide it. */
-.book-face-top {
+.book-face-bottom {
   width: var(--book-w);
   height: var(--book-d);
-  transform: rotateX(90deg) translateZ(calc(var(--book-h) / 2));
-  background: color-mix(in srgb, var(--accent, #6E8B7A) 35%, white);
+  transform: rotateX(90deg) translateZ(calc(-1 * var(--book-h) + var(--book-d) / 2));
+   /* translateZ(calc(var(--book-h) / 2)); */
+  background: color-mix(in srgb, var(--accent, theme('colors.secondary')) 35%, white);
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
