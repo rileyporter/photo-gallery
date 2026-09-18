@@ -21,8 +21,9 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
   return (
     <div className="book-volume-wrap" style={wrapStyle}>
       <div className="book-shadow" />
+
       <div
-        className="book-volume"
+        className="book-hit-area"
         onClick={() => onSelect(book.slug)}
         role="button"
         tabIndex={0}
@@ -30,33 +31,35 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
         onKeyDown={(e) => e.key === 'Enter' && onSelect(book.slug)}
         data-cursor="open"
       >
-        {/* Front cover: pushed toward the viewer on a plain wrapper —
-            the motion.div inside carries no transform of its own. */}
-        <div className="book-face-front">
-          <motion.div
-            layoutId={`book-${book.slug}`}
-            className="book-cover-plane"
-            style={{ visibility: hidden ? 'hidden' : 'visible' }}
-          >
-            <div className="book-cover-content" style={{ backgroundColor: book.accentColor }}>
-              <div className="flex mt-8 min-h-0 min-w-0">
-                <img
-                  src={book.cover.src}
-                  alt={book.cover.alt}
-                  loading="lazy"
-                  className="max-h-full max-w-full h-auto w-auto"
-                />
+        <div className="book-volume">
+          {/* Front cover: pushed toward the viewer on a plain wrapper —
+              the motion.div inside carries no transform of its own. */}
+          <div className="book-face-front" data-cursor="open">
+            <motion.div
+              layoutId={`book-${book.slug}`}
+              className="book-cover-plane"
+              style={{ visibility: hidden ? 'hidden' : 'visible' }}
+            >
+              <div className="book-cover-content" style={{ backgroundColor: book.accentColor }}>
+                <div className="flex mt-8 min-h-0 min-w-0">
+                  <img
+                    src={book.cover.src}
+                    alt={book.cover.alt}
+                    loading="lazy"
+                    className="max-h-full max-w-full h-auto w-auto"
+                  />
+                </div>
+                <p className="book-cover-title" style={{ color: book.cover.textColor }}>
+                  {book.title}
+                </p>
               </div>
-              <p className="book-cover-title" style={{ color: book.cover.textColor }}>
-                {book.title}
-              </p>
-            </div>
-          </motion.div>
-        </div>
+            </motion.div>
+          </div>
 
-        <div className="book-face-spine" style={decorativeStyle} />
-        <div className="book-face-pages" style={decorativeStyle} />
-        <div className="book-face-bottom" style={decorativeStyle} />
+          <div className="book-face-spine" style={decorativeStyle} />
+          <div className="book-face-pages" style={decorativeStyle} />
+          <div className="book-face-bottom" style={decorativeStyle} />
+        </div>
       </div>
     </div>
   )

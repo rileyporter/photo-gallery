@@ -158,10 +158,17 @@ body {
   transform: scale(1.08);
 }
 
-/* Book hovering off the shelf when hovered over */
-.book-volume:hover,
-.book-volume:focus-visible {
-  transform: rotateX(35deg) rotateY(-10deg) translateY(-10px);
+.book-hit-area {
+  /* Stable target for hover and click behavior while book animates */
+  position: relative;
+  width: var(--book-w);
+  height: var(--book-h);
+  cursor: pointer;
+}
+
+.book-hit-area:hover .book-volume,
+.book-hit-area:focus-visible .book-volume {
+  transform: rotateX(35deg) rotateY(-10deg) translateY(-30px);
 }
 
 .book-volume:focus-visible {
