@@ -38,6 +38,36 @@ body {
   outline-offset: 2px;
 }
 
+.header-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-icon::before {
+  content: '';
+  position: absolute;
+  inset: -1px; 
+  border-radius: 50%;
+  background: radial-gradient(
+    circle, 
+    color-mix(in srgb, var(--site-secondary) 70%, transparent) 0%, 
+    transparent 85%
+  );
+
+  box-shadow: 0 0 16px 2px color-mix(in srgb, var(--site-secondary) 50%, transparent);  
+  /* Diffuses harsh edges on both shadow and gradient */
+  filter: blur(4px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.header-icon img {
+  position: relative;
+  z-index: 1;
+}
+
 /* ##### Shelf Styling Properties ##### */
 .shelf-row {
   display: flex;

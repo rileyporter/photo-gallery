@@ -25,7 +25,9 @@ export default function App() {
     <LayoutGroup>
       <div className="min-h-screen bg-bg text-ink">
         <header className="flex items-center gap-2 px-6 py-8 md:px-10">
-          <img src="/favicon.svg" alt="" className="h-5 w-5" />
+          <div className="header-icon h-10 w-10">
+            <img src="/favicon.svg" alt="A stylized daisy icon" />
+          </div>
           <p className="font-display text-xl text-ink">DAISY</p>
         </header>
 
