@@ -9,10 +9,10 @@
   --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 0.2s; /* small state changes — cursor ring, close-button color */
   --duration-base: 0.5s; /* larger transforms — shelf cover tilt/lift */
-  --site-bg: #cbe8fa;
+  --site-bg: #eef5f9;
   --site-ink: #5f4402;
   --site-muted: #948C7B;
-  --site-secondary: #a1cce0;
+  --site-secondary: #c7d9e2;
   --site-line: #2A2822;
   --site-accent: #E6A73C;
 }
@@ -24,6 +24,7 @@ html {
 body {
   background-color: theme('colors.bg');
   color: theme('colors.ink');
+  font-family: theme('fontFamily.display'), sans-serif;
 }
 
 ::selection {
@@ -43,24 +44,6 @@ body {
   flex-direction: column;
   align-items: center;
   position: relative;
-}
-
-.shelf-row::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  translate: -50% 0;
-  width: min(92vw, 980px);
-  height: 280px;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 50% 50% at 50% 100%,
-    /* warm, low-opacity light glow */
-    rgba(255, 241, 209, 0.16) 0%,
-    rgba(255, 241, 209, 0.06) 45%,
-    transparent 75%
-  );
-  z-index: 0; /* sits behind .shelf-books */
 }
 
 /* Ensure the books themselves paint above the glow — necessary because
@@ -90,7 +73,6 @@ body {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
     0 18px 26px -12px rgba(0, 0, 0, 0.7);
-  visibility: hidden;
 }
 
 /* ##### Book 3D Solid Styling ##### */
@@ -118,8 +100,8 @@ body {
 }
 
 .book-volume-wrap {
-  --book-w: clamp(120px, 15vw, 190px);
-  --book-h: calc(var(--book-w) * 1.5);
+  --book-w: clamp(120px, 20vw, 190px);
+  --book-h: calc(var(--book-w) * 1.25);
   --book-d: clamp(5px, calc(var(--book-length) * var(--book-w) * 0.02), 50px);
   --book-page-color: #EDE7DA;
   --book-page-left-shift: calc(var(--book-w) * 0.015);
@@ -165,7 +147,7 @@ body {
 }
 
 .book-face-front,
-.book-spine,
+.book-closed-spine,
 .book-right-pages,
 .book-cover-bottom {
   position: absolute;
@@ -190,23 +172,28 @@ body {
 .book-cover-content {
   width: 100%;
   height: 100%;
-  padding: 0.75rem;
+  --book-cover-padding: calc(var(--book-w) * 0.10);
+  padding: var(--book-cover-padding);
   position: relative;
 }
 
+.book-cover-image {
+  margin-top: calc(var(--book-h) * 0.05);
+}
+
 .book-cover-title {
+  text-transform: uppercase;
   flex-shrink: 0;
-  font-family: 'Fraunces', serif;
-  font-style: italic;
-  font-size: clamp(0.65rem, 2vw, 2rem);
+  font-size: clamp(0.65rem, calc(var(--book-h) * 0.09), 2rem);
   line-height: 1.15;
   overflow: hidden;
   position: absolute;
-  bottom: 1.5rem;
+  bottom: calc(var(--book-h) * 0.07);
   left: 0;
   right: 0;
   text-align: center;
-  padding: 0 0.25rem;
+  /* Must reset the left & right padding from parent because position absolute */
+  padding: 0 var(--book-cover-padding);
 }
 
 /* ##### Book Spine ##### */
@@ -311,18 +298,18 @@ body {
   border-radius: 2px;
 }
 
-/* .reader-shell::before {
+/* Drop shadow to open book view */
+.reader-shell::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 0; /* behind .reader-track (z-index: 1, above) and the close button (z-10) */
-  /* background: radial-gradient(
+  background: radial-gradient(
     ellipse 80% 55% at 50% 100%,
-    color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 20%, transparent) 0%,
     transparent 70%
   ); 
-} */
+}
 
 /* ##### Paper Grain Styling ##### */
 
@@ -366,14 +353,12 @@ body {
 }
 
 .page-heading {
-  font-family: 'Fraunces', serif;
   font-style: italic;
   font-size: 1.5rem;
   margin-bottom: 1.25rem;
 }
 
 .page-paragraph {
-  font-family: 'Fraunces', serif;
   font-optical-sizing: auto;
   font-size: 1.15rem;
   line-height: 1.8;
@@ -406,6 +391,7 @@ body {
   height: 75vh;
   perspective: 2200px;
   box-shadow: 0 60px 100px -30px rgba(0, 0, 0, 0.7);
+  background: var(--site-muted);
 }
 
 .book-left-panel {
@@ -426,7 +412,7 @@ body {
   transition: width var(--duration-base) var(--ease-standard);
 }
 
-.book-spine {
+.book-open-spine {
   flex-shrink: 0;
   width: 14px;
   height: 100%;

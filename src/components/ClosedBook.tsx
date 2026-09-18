@@ -41,7 +41,7 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
               style={{ visibility: hidden ? 'hidden' : 'visible' }}
             >
               <div className="book-cover-content">
-                <div className="flex mt-8 min-h-0 min-w-0">
+                <div className="book-cover-image flex min-h-0 min-w-0">
                   <img
                     src={book.cover.src}
                     alt={book.cover.alt}
@@ -56,7 +56,7 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
             </motion.div>
           </div>
 
-          <div className="book-spine" style={toggleOpacity}>
+          <div className="book-closed-spine" style={toggleOpacity}>
             <div className="book-face-spine" />
             <div className="book-spine-front" />
             <div className="book-spine-bottom" />

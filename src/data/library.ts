@@ -89,7 +89,7 @@ export const shelves: Shelf[] = [
           textColor: '#f4d06f',
         },
         accentColor: '#19807c',
-        title: 'Japan and South Korea',
+        title: 'Japan & South Korea',
         description: 'Trip to Japan and South Korea 2024',
         pages: [
           {

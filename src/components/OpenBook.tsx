@@ -120,7 +120,7 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
           <div className="book-left-panel">
             <div className="book-left-panel-page-stack" style={{ width: `${leftStackPercent}%`}} />
           </div>
-          <div className="book-spine" />
+          <div className="book-open-spine" />
 
           <div className="book-right-panel">
             <button
@@ -174,7 +174,7 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
 
         {/* Progress bar to jump around book */}
         <BookProgress
-          className="mt-8 mb-6"
+          className="mt-8 mb-6 z-10"
           currentPage={pageIndex}
           totalPages={totalPages}
           accentColor={book.accentColor}

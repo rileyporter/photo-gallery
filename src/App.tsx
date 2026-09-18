@@ -26,7 +26,7 @@ export default function App() {
       <div className="min-h-screen bg-bg text-ink">
         <header className="flex items-center gap-2 px-6 py-8 md:px-10">
           <img src="/favicon.svg" alt="" className="h-5 w-5" />
-          <p className="font-display text-lg italic text-ink">DAISY</p>
+          <p className="font-display text-xl text-ink">DAISY</p>
         </header>
 
         <main className="flex flex-col gap-20 pb-24">

@@ -14,7 +14,7 @@ export default {
       },
       fontFamily: {
         // default font-display for project
-        display: ['"Fraunces"', 'serif'],
+        display: ['Fredoka', 'sans-serif'],
         // used for neutral UI, e.g. chrome labels
         sans: ['"Inter"', 'system-ui', 'sans-serif'],
       },
