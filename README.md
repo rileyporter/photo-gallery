@@ -64,6 +64,8 @@ npm run dev
 - Protect images from being scraped, downloaded and saved
 - move root styling rules to `@layer base` in CSS
 - move general styling rules to Tailwind classes when possible to colocate
+- add a "shelf background" line to indicate where the shelf intersects with the wall if the books
+  are resting 22% back.
 
 ### Add a React Router
 

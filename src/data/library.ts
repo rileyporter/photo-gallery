@@ -150,7 +150,7 @@ export const shelves: Shelf[] = [
           textColor: '#1b29e1',
         },
         accentColor: '#48bbfd',
-        title: 'San Juans',
+        title: 'San Juan Islands',
         description: 'Sailing with friends and seeing ferries in the san juans',
         pages: [
           {

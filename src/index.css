@@ -10,9 +10,9 @@
   --duration-fast: 0.2s; /* small state changes — cursor ring, close-button color */
   --duration-base: 0.5s; /* larger transforms — shelf cover tilt/lift */
   --site-bg: #cbe8fa;
-  --site-ink: #5c4304;
+  --site-ink: #5f4402;
   --site-muted: #948C7B;
-  --site-secondary: #a6bbc5;
+  --site-secondary: #a1cce0;
   --site-line: #2A2822;
   --site-accent: #E6A73C;
 }
@@ -85,21 +85,21 @@ body {
   width: min(92vw, 980px);
   height: 22px;
   border-radius: 1px;
-  background: linear-gradient(180deg, theme('colors.bg') 0%, theme('colors.secondary') 100%);
+  background: linear-gradient(180deg, theme('colors.secondary') 0%, transparent 100%);
+  border-radius: 8px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
     0 18px 26px -12px rgba(0, 0, 0, 0.7);
-    /* visibility: hidden; */
 }
 
 /* ##### Book 3D Solid Styling ##### */
 
-.book-volume:hover,
+/* .book-volume:hover,
 .book-volume:focus-visible {
   box-shadow:
     0 34px 44px -16px rgba(0, 0, 0, 0.75),
     0 0 46px -6px color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 55%, transparent);
-}
+} */
 
 .book-volume:focus-visible {
   outline: 2px solid var(--book-accent, theme('colors.accent'));
@@ -120,6 +120,7 @@ body {
   --book-w: clamp(120px, 15vw, 190px);
   --book-h: calc(var(--book-w) * 1.5);
   --book-d: 30px;
+  --book-page-color: #EDE7DA;
   perspective: 2400px; /* large value → less per-book distortion */
   transform-style: preserve-3d;
   position: relative;
@@ -132,7 +133,7 @@ body {
   transform-style: preserve-3d;
   cursor: pointer;
   transform-origin: bottom center;
-  transform: rotateX(22deg);
+  transform: rotateX(35deg);
   transition: transform var(--duration-base) var(--ease-standard);
 }
 
@@ -160,7 +161,7 @@ body {
 /* Book hovering off the shelf when hovered over */
 .book-volume:hover,
 .book-volume:focus-visible {
-  transform: rotateX(22deg) rotateY(-10deg) translateY(-15px);
+  transform: rotateX(35deg) rotateY(-10deg) translateY(-10px);
 }
 
 .book-volume:focus-visible {
@@ -227,7 +228,7 @@ body {
   width: var(--book-d);
   height: var(--book-h);
   transform: rotateY(-90deg) translateZ(calc(var(--book-w) / 2));
-  background: color-mix(in srgb, var(--accent, theme('colors.secondary')) 60%, black);
+  background: var(--accent);
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
@@ -236,7 +237,7 @@ body {
   width: var(--book-d);
   height: var(--book-h);
   transform: rotateY(90deg) translateZ(calc(var(--book-w) / 2));
-  background: #EDE7DA;
+  background: var(--book-page-color);
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
@@ -249,7 +250,7 @@ body {
   height: var(--book-d);
   transform: rotateX(90deg) translateZ(calc(-1 * var(--book-h) + var(--book-d) / 2));
    /* translateZ(calc(var(--book-h) / 2)); */
-  background: color-mix(in srgb, var(--accent, theme('colors.secondary')) 35%, white);
+  background: color-mix(in srgb, var(--accent, theme('colors.secondary')) 35%, var(--book-page-color));
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
@@ -321,18 +322,18 @@ body {
   border-radius: 2px;
 }
 
-.reader-shell::before {
+/* .reader-shell::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 0; /* behind .reader-track (z-index: 1, above) and the close button (z-10) */
-  background: radial-gradient(
+  /* background: radial-gradient(
     ellipse 80% 55% at 50% 100%,
     color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 20%, transparent) 0%,
     transparent 70%
-  );
-}
+  ); 
+} */
 
 /* ##### Paper Grain Styling ##### */
 
