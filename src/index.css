@@ -133,9 +133,11 @@ body {
   --book-w: clamp(120px, 20vw, 190px);
   --book-h: calc(var(--book-w) * 1.25);
   --book-d: clamp(5px, calc(var(--book-length) * var(--book-w) * 0.02), 50px);
+  --book-spine-width: calc(var(--book-w) * 0.06);
+  --book-body-w: calc(var(--book-w) - var(--book-spine-width));
   --book-page-color: #EDE7DA;
-  --book-page-left-shift: calc(var(--book-w) * 0.015);
-  --book-page-up-shift:  calc(var(--book-h) * 0.01);
+  --book-page-left-shift: calc(var(--book-w) * 0.015); /* percentage of overall book width */
+  --book-page-up-shift:  calc(var(--book-h) * 0.01); /* percentage of overall book height */
   perspective: 2400px; /* large value → less per-book distortion */
   transform-style: preserve-3d;
   position: relative;
@@ -179,25 +181,41 @@ body {
 .book-face-front,
 .book-closed-spine,
 .book-right-pages,
-.book-cover-bottom {
+.book-cover-bottom,
+.book-spine-front,
+.book-spine-bottom {
   position: absolute;
   inset: 0;
   margin: auto;
   backface-visibility: hidden;
 }
 
-.book-face-front {
-  transform: translateZ(var(--book-d));
-}
-
 .book-cover-top, .book-cover-bottom {
-  width: 100%;
   height: 100%;
   overflow: hidden;
   border-radius: 2px;
   box-shadow: 0 26px 34px -18px rgba(0, 0, 0, 0.65);
   background-color: var(--book-accent);
 }
+
+.book-face-front {
+  width: var(--book-body-w);
+  height: var(--book-h);
+  transform:
+    translateX(calc(var(--book-spine-width) / 2))
+    translateZ(var(--book-d));
+}
+
+.book-cover-bottom {
+  width: var(--book-body-w);
+  transform: translateX(calc(var(--book-spine-width) / 2));
+}
+
+/* .book-closed-spine {
+  visibility: hidden;
+  opacity: 0;
+} */
+
 
 .book-cover-content {
   width: 100%;
@@ -236,6 +254,27 @@ body {
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
+.book-spine-front {
+  width: var(--book-spine-width);
+  height: var(--book-h);
+  transform:
+    translateZ(var(--book-d)) translateX(calc(-1 * (var(--book-w) / 2 - var(--book-spine-width) / 2)));
+  background: #d17171;
+  /* z-index: 5; */
+  /* background: var(--book-accent); */
+}
+
+.book-spine-bottom {
+  width: var(--book-spine-width);
+  height: var(--book-d);
+  transform:
+    translateX(calc(-1 * (var(--book-w) / 2 - var(--book-spine-width) / 2)))
+    translateY(calc(var(--book-h) - var(--book-d) / 2 - var(--book-page-up-shift)))
+    rotateX(90deg)
+    translateY(calc(var(--book-d) / 2));
+  background: color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 70%, black);
+}
+
 /* ##### Book Bottom and Book Pages ##### */
 
 .book-right-pages {
@@ -250,9 +289,10 @@ body {
 }
 
 .book-bottom-pages {
-  width: calc(var(--book-w) - var(--book-page-left-shift));
+  width: calc(var(--book-body-w) - var(--book-page-left-shift));
   height: var(--book-d);
   transform:
+    translateX(calc(var(--book-spine-width)))
     translateY(calc(var(--book-h) - var(--book-d) / 2 - var(--book-page-up-shift)))
     rotateX(90deg)
     translateY(calc(var(--book-d) / 2));

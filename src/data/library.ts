@@ -181,9 +181,9 @@ export const shelves: Shelf[] = [
         cover: {
           src: '/photos/taiwan/DSC08597.JPG',
           alt: '',
-          textColor: '#a6f46f',
+          textColor: '#d384f3',
         },
-        accentColor: '#0a8a2a',
+        accentColor: '#641079',
         title: 'Taiwan',
         description: 'Exploring Formosa with friends',
         pages: [

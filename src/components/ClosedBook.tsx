@@ -16,8 +16,6 @@ interface ClosedBookProps {
 export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) {
   const wrapStyle: CSSVarStyle = {'--book-accent': book.accentColor , '--book-length': book.pages.length}
 
-  console.log(book.pages.length)
-
   const toggleOpacity = { opacity: hidden ? 0 : 1 }
 
   return (
