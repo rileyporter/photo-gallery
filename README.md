@@ -67,6 +67,8 @@ npm run dev
 - add a "shelf background" line to indicate where the shelf intersects with the wall if the books
   are resting 22% back.
 - Look at shifting the 3D book divs to svg
+- Fix book close animation to be more realistic
+- Fix styling on selected book element, it hovers the book hit area and looks odd.
 
 ### Add a React Router
 

@@ -133,7 +133,7 @@ body {
   --book-w: clamp(120px, 20vw, 190px);
   --book-h: calc(var(--book-w) * 1.25);
   --book-d: clamp(5px, calc(var(--book-length) * var(--book-w) * 0.02), 50px);
-  --book-spine-width: calc(var(--book-w) * 0.06);
+  --book-spine-width: calc(var(--book-w) * 0.02);
   --book-body-w: calc(var(--book-w) - var(--book-spine-width));
   --book-page-color: #EDE7DA;
   --book-page-left-shift: calc(var(--book-w) * 0.015); /* percentage of overall book width */
@@ -178,12 +178,13 @@ body {
   }
 }
 
+/* Positions the faces of the book at a shared starting point in the center of the book-volume */
 .book-face-front,
 .book-closed-spine,
 .book-right-pages,
 .book-cover-bottom,
 .book-spine-front,
-.book-spine-bottom {
+.book-spine-edge {
   position: absolute;
   inset: 0;
   margin: auto;
@@ -210,12 +211,6 @@ body {
   width: var(--book-body-w);
   transform: translateX(calc(var(--book-spine-width) / 2));
 }
-
-/* .book-closed-spine {
-  visibility: hidden;
-  opacity: 0;
-} */
-
 
 .book-cover-content {
   width: 100%;
@@ -246,10 +241,17 @@ body {
 
 /* ##### Book Spine ##### */
 
-.book-face-spine {
+.book-closed-spine {
+  transform-style: preserve-3d;
+}
+
+.book-spine-edge {
   width: var(--book-d);
   height: var(--book-h);
-  transform: rotateY(-90deg) translateZ(calc(var(--book-w) / 2));
+  transform:
+    translateX(calc(-1 * var(--book-w) / 2))
+    rotateY(-90deg)
+    translateX(calc(var(--book-d) / 2));
   background: var(--book-accent);
   transition: opacity var(--duration-fast) var(--ease-standard);
 }
@@ -258,10 +260,11 @@ body {
   width: var(--book-spine-width);
   height: var(--book-h);
   transform:
-    translateZ(var(--book-d)) translateX(calc(-1 * (var(--book-w) / 2 - var(--book-spine-width) / 2)));
-  background: #d17171;
-  /* z-index: 5; */
-  /* background: var(--book-accent); */
+    translateZ(var(--book-d))
+    translateX(calc(-1 * (var(--book-w) / 2 - var(--book-spine-width) / 2)));
+  background: var(--book-accent);
+  box-shadow: inset -2px 0 6px rgba(100, 100, 100, 0.35);
+  border-radius: 2px 0 0 2px;
 }
 
 .book-spine-bottom {
@@ -269,10 +272,15 @@ body {
   height: var(--book-d);
   transform:
     translateX(calc(-1 * (var(--book-w) / 2 - var(--book-spine-width) / 2)))
-    translateY(calc(var(--book-h) - var(--book-d) / 2 - var(--book-page-up-shift)))
+    translateY(calc(var(--book-h) / 2 ))
     rotateX(90deg)
     translateY(calc(var(--book-d) / 2));
-  background: color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 70%, black);
+  /* Had to remove book-spine-bottom from above rules because of backface visibility, so 
+     copying the missing rules that were set above here. */
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  background: var(--book-accent);
 }
 
 /* ##### Book Bottom and Book Pages ##### */

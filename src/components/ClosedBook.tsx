@@ -55,7 +55,7 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
           </div>
 
           <div className="book-closed-spine" style={toggleOpacity}>
-            <div className="book-face-spine" />
+            <div className="book-spine-edge" />
             <div className="book-spine-front" />
             <div className="book-spine-bottom" />
           </div>
