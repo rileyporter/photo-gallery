@@ -47,9 +47,10 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
                     className="max-h-full max-w-full h-auto w-auto"
                   />
                 </div>
-                <p className="book-cover-title" style={{ color: book.cover.textColor }}>
-                  {book.title}
-                </p>
+                <div className="book-cover-title" style={{ color: book.cover.textColor }}>
+                  <p>{book.title}</p>
+                  <p>{book.year}</p>
+                </div>
               </div>
             </motion.div>
           </div>

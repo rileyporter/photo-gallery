@@ -17,6 +17,7 @@ import type {
   
 interface PageContentProps {
   page: Page
+  accentColor: string
 }
 
 const V_ORDER: VerticalPosition[] = ['top', 'center', 'bottom']
@@ -102,9 +103,9 @@ function renderImageBlock(block: ImageBlock) {
   )
 }
 
-function renderTextBlock(block: TextBlock, textColor?: string) {
+function renderTextBlock(block: TextBlock, accentColor: string) {
   const textBlockStyle = {
-    color: textColor || '#F3EFE6',
+    color: block.textColor ?? accentColor,
     maxWidth: TEXT_MAX_WIDTH[block.size],
   }
 
@@ -125,13 +126,12 @@ function renderBlock(
   index: number,
   row: VerticalPosition,
   col: HorizontalPosition,
-  textColor?: string
-) {
+  accentColor: string) {
   const h = block.justify?.horizontal ?? col
   const v = block.justify?.vertical ?? row
 
   const blockContent =
-    block.type === 'image' ? renderImageBlock(block) : renderTextBlock(block, textColor)
+    block.type === 'image' ? renderImageBlock(block) : renderTextBlock(block, accentColor)
 
   return (
     <div
@@ -206,7 +206,7 @@ function buildRowMap(blocks: PageBlock[]): Map<VerticalPosition, RowInfo> {
 
 // #### Page Content Component ####
 
-export default function PageContent({ page }: PageContentProps) {
+export default function PageContent({ page, accentColor }: PageContentProps) {
   // Full image case: edge-to-edge / unpadded hero presentation
   const soleBlock = page.blocks.length === 1 ? page.blocks[0] : undefined
   if (soleBlock?.type === 'image' && soleBlock.size === 'full') {
@@ -265,7 +265,7 @@ export default function PageContent({ page }: PageContentProps) {
           >
             <div className={`flex gap-4 md:gap-6 min-w-0 max-w-full ${isSolo ? 'h-full max-h-full' : ''}`}>
               {cell.blocks.map((block, i) =>
-                renderBlock(block, i, cell.v, cell.h, page.textColor)
+                renderBlock(block, i, cell.v, cell.h, accentColor)
               )}
             </div>
           </div>

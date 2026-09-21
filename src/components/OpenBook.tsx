@@ -143,7 +143,7 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
             {/* Pages and turning animation */}
             <div className="page-stack">
               <section className="reader-page-flat" style={{ backgroundColor: basePage.backgroundColor }}>
-                <PageContent page={basePage} />
+                <PageContent page={basePage} accentColor={book.accentColor} />
               </section>
 
               {turn && turningPage && (
@@ -156,7 +156,7 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
                   transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.45, 0, 0.2, 1] }}
                   onAnimationComplete={() => setTurn(null)}
                 >
-                  <PageContent page={turningPage} />
+                  <PageContent page={turningPage} accentColor={book.accentColor} />
                   <div
                     className="page-turn-shade"
                     style={{

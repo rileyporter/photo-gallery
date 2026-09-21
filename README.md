@@ -44,10 +44,7 @@ npm run dev
   the book is open and a soft glow behind the closed book on hover.
 
 ## ToDo
-- Fix book tilt click bug. Have to manually trigger a click to get motion to find the book
-- Swap to a 3D book element with a cover
 - Change overall styling, move away from black and play with styling of title
-- Implement photo book covers and text for display on the shelf
 - Implement a book title page / trip report page
 - Make the affordance of the scroll wheel better. The cursor is a bit finicky
   there, and I think the click target is too small. Changing the padding makes
@@ -57,18 +54,25 @@ npm run dev
   for landscape or vertical. Play with photo layout options for different viewports
 - Think about a CMS instead of json for data management
 - Play with layout of shelves and tilt
-- Fix shelf lighting elements
 - Play with page grain
-- Choose different fonts for the page and fix the first letter paragraph styling
 - Test on mobile
 - Protect images from being scraped, downloaded and saved
 - move root styling rules to `@layer base` in CSS
 - move general styling rules to Tailwind classes when possible to colocate
 - add a "shelf background" line to indicate where the shelf intersects with the wall if the books
   are resting 22% back.
-- Look at shifting the 3D book divs to svg
-- Fix book close animation to be more realistic
-- Fix styling on selected book element, it hovers the book hit area and looks odd.
+- Look at converting the 3D book divs to svg. Investigate performance comparison
+- Fix book open/close animation to be more realistic
+- Fix styling on selected book element, it outlines the book hit area and looks odd.
+- Aspect ratio of cover image on books looks a bit stretched
+- Change page layout so that if no image size is provided, it takes as large of a space as it can
+- Fix text justification bugs, so text blocks truly adhere to justification rules
+- Add "chapter" jumps and labels to the bottom progress bar to orient more easily
+- Let `full` size images take their entire row/column if no other neighbors, or optionally, give
+  full size images an optional caption that is positioned on their non-cropped side, if that is
+  going to be a common use case
+- Text bug, where text on a page gets clipped by an image row/column
+- Images not sizing correctly with other elements on the page
 
 ### Add a React Router
 
