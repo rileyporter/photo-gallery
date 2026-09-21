@@ -16,7 +16,13 @@ const booksBySlug = new Map(
 export default function App() {
 
   const [openSlug, setOpenSlug] = useState<string | null>(null)
+  const [closingSlug, setClosingSlug] = useState<string | null>(null)
   const openBook = openSlug ? booksBySlug.get(openSlug) ?? null : null
+  
+  function handleClose(slug: string) {
+    setClosingSlug(slug)
+    setOpenSlug(null)
+  }
 
   return (
     // LayoutGroup groups together the matching pair of ClosedBook
@@ -33,7 +39,12 @@ export default function App() {
 
         <main className="flex flex-col gap-20 pb-24">
           {shelves.map((shelf) => (
-            <Shelf key={shelf.id} books={shelf.books} onSelect={setOpenSlug} openSlug={openSlug} />
+            <Shelf
+              key={shelf.id}
+              books={shelf.books}
+              onSelect={setOpenSlug}
+              openSlug={openSlug ?? closingSlug}
+            />
           ))}
         </main>
       </div>
@@ -41,8 +52,14 @@ export default function App() {
       {/* AnimatePresence handles holding onto the open OpenBook on close,
           if we want to later add an exit animation */ }
       <AnimatePresence>
-        {openBook && <OpenBook book={openBook} onClose={() => setOpenSlug(null)} />}
-      </AnimatePresence>
+      {openBook && (
+        <OpenBook
+          book={openBook}
+          onClose={() => handleClose(openBook.slug)}
+          onExited={() => setClosingSlug(null)}
+        />
+      )}
+    </AnimatePresence>
 
       {/* Cursor manages all window-level mouse listeners. Mounted inside LayoutGroup component
           for convenience as that is the current overall root for the app. */}

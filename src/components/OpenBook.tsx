@@ -14,6 +14,7 @@ import type { CSSVarStyle } from '../types/css.ts'
 interface OpenBookProps {
   book: Book
   onClose: () => void
+  onExited: () => void
 }
 
 type Direction = 'left' | 'right'
@@ -23,7 +24,7 @@ interface Turn {
   direction: Direction
 }
 
-export default function OpenBook({ book, onClose }: OpenBookProps) {
+export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
   const shellStyle: CSSVarStyle = { '--book-accent': book.accentColor }
   const reduceMotion = useReducedMotion()
 
@@ -89,6 +90,15 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
       layoutId={undefined}
       className="reader-shell fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-bg/95"
       style={shellStyle}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onAnimationComplete={(definition) => {
+        // Fires whenever the animation is complete, both for opening and closing
+        // When closing, triggers the onExited handler
+        if (definition === 'exit') onExited()
+      }}
+      transition={{ duration: 0.2 }}
       // Click-outside-to-close; only fires on the backdrop itself, not
       // clicks bubbling up from the book
       onClick={(e) => e.target === e.currentTarget && onClose()}

@@ -73,6 +73,15 @@ npm run dev
   going to be a common use case
 - Text bug, where text on a page gets clipped by an image row/column
 - Images not sizing correctly with other elements on the page
+- Verify the onExited() animation solution is efficient and semantically correct
+- Found a bug with onExited() solution, it hides the rest of the book (besides the cover) after
+  close
+- No explicit width/height on either <img>. Beyond causing layout shift as the image decodes, this
+  also means the browser can't reserve space or prioritize the fetch as intelligently as it could
+  with known intrinsic dimensions up front. Address as part of fine tuning performance.
+- Split `library.ts` into a nested book data storage, both for readability and performance
+
+
 
 ### Add a React Router
 
