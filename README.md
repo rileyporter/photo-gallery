@@ -83,6 +83,10 @@ npm run dev
   data to be displayed on the shelves
 - Programatically resize data files to minimize performance issues. Or manually resize image files
   before loading them onto a host server.
+- PageLayout should positionally allow for a stack of small photos to the left or right of a bigger
+  one. Or top and bottom. Positionally, photos should be able to determine their edges and size
+  accordingly to snap to the edges. That breaks the current grid design at least a little, need
+  to reconsider a larger layout redesign
 
 
 

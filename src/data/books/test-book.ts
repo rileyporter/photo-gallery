@@ -128,6 +128,26 @@ export const testBook = createBook({
         },
       ],
     },
+    // TODO: debug large image overlapping other small image and hiding it
+    {
+      backgroundColor: '#B7C8CB',
+      blocks: [
+        {
+          type: 'image',
+          size: 'large',
+          src: '/photos/korea/seongsan.jpg',
+          alt: 'Seongsan Ilchulbong',
+        },
+        {
+          type: 'image',
+          size: 'medium',
+          src: '/photos/korea/udo-grass.jpg',
+          alt: 'The view of Seongsan Ilchulbong from Udo',
+          position: { horizontal: 'right' },
+          justify: {vertical: 'top'},
+        },
+      ],
+    },
     {
       backgroundColor: '#171614',
       blocks: [
