@@ -79,7 +79,10 @@ npm run dev
 - No explicit width/height on either <img>. Beyond causing layout shift as the image decodes, this
   also means the browser can't reserve space or prioritize the fetch as intelligently as it could
   with known intrinsic dimensions up front. Address as part of fine tuning performance.
-- Split `library.ts` into a nested book data storage, both for readability and performance
+- Dynamically load in one book at a time as needed for performance, requires splitting out cover
+  data to be displayed on the shelves
+- Programatically resize data files to minimize performance issues. Or manually resize image files
+  before loading them onto a host server.
 
 
 
