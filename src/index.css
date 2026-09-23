@@ -132,7 +132,7 @@ body {
 .book-volume-wrap {
   --book-w: clamp(120px, 20vw, 190px);
   --book-h: calc(var(--book-w) * 1.25);
-  --book-d: clamp(5px, calc(var(--book-length) * var(--book-w) * 0.02), 50px);
+  --book-d: clamp(15px, calc(var(--book-length) * var(--book-w) * 0.01), 40px); /* book depth */
   --book-spine-width: calc(var(--book-w) * 0.02);
   --book-body-w: calc(var(--book-w) - var(--book-spine-width));
   --book-page-color: #EDE7DA;
