@@ -1,14 +1,11 @@
-// Overlay component to render the open book for a selected book: a
-// dimmed fullscreen stage holding a smaller, book-shaped object at its
-// center. One page is visible at a time (the right, flat panel); the
-// left panel is a decorative, near-perpendicular stand-in for the
-// already-read pages.
+// Overlay component to render the open book for a selected book:
+// Uses a simultaneous 3D cover flip + spatial spring movement for instant feedback.
 
-import { motion, useReducedMotion } from 'motion/react'
+import { motion } from 'motion/react'
 import { useCallback, useEffect, useState } from 'react'
 import BookProgress from './BookProgress.tsx'
 import PageContent from './PageContent.tsx'
-import { BOOK_SPRING_TRANSITION, MODAL_SHELL_VARIANTS } from '../constants/animations'
+import { useTransition, MODAL_SHELL_VARIANTS, useCoverFlipVariants} from '../constants/animations'
 import type { Book } from '../data/library.ts'
 import type { CSSVarStyle } from '../types/css.ts'
 
@@ -25,11 +22,8 @@ interface Turn {
   direction: Direction
 }
 
-const CLOSE_TRANSITION = { type: 'spring', duration: 0.4, bounce: 0 } as const
-
 export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
   const shellStyle: CSSVarStyle = { '--book-accent': book.accentColor }
-  const reduceMotion = useReducedMotion()
 
   const [pageIndex, setPageIndex] = useState(0)
   const [turn, setTurn] = useState<Turn | null>(null)
@@ -38,11 +32,10 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
   const isFirstPage = pageIndex === 0
   const isLastPage = pageIndex === totalPages - 1
 
-  // Left panel thickness grows with how far into the book we are
+  // Left panel thickness grows with read progress
   const readProgressPercent = totalPages > 1 && pageIndex > 0 ? (pageIndex + 1) / totalPages : 0
   const leftStackPercent = Math.max(10, 100 * readProgressPercent)
 
-  // Jump to a target page
   const goTo = useCallback(
     (target: number, direction: Direction) => {
       if (turn || target < 0 || target >= totalPages) return
@@ -52,7 +45,6 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
     [turn, totalPages, pageIndex]
   )
 
-  // Used to handle users using a progress bar to jump around the open book
   const handleSeek = useCallback(
     (target: number) => {
       if (target === pageIndex) return
@@ -61,8 +53,6 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
     [pageIndex, goTo]
   )
 
-  // Handle key events:
-  // Arrow keys as the accessible nav fallback with Escape key to close
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.key === 'ArrowRight' && !isLastPage) goTo(pageIndex + 1, 'right')
@@ -73,20 +63,22 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
     return () => window.removeEventListener('keydown', handleKey)
   }, [pageIndex, isFirstPage, isLastPage, goTo, onClose])
 
-  // Handle propagating custom event for updating the cursor, e.g. pageIndex reaching end of book
   useEffect(() => {
     window.dispatchEvent(new Event('cursor:recheck'))
   }, [pageIndex])
 
-  // Current pages we're looking at and animating to/from
+  // Current pages
   const baseIndex = turn?.direction === 'left' ? turn.from : pageIndex
   const basePage = book.pages[baseIndex]
   const turningIndex = turn ? (turn.direction === 'left' ? pageIndex : turn.from) : null
   const turningPage = turningIndex !== null ? book.pages[turningIndex] : null
 
-  // Pivot and rotation bounds for page flips
   const turnFrom = turn?.direction === 'left' ? -100 : 0
   const turnTo = turn?.direction === 'left' ? 0 : -100
+
+  const coverVariants = useCoverFlipVariants()
+  const pageTurnTransition = useTransition('pageTurn')
+  const bookZoomTransition = useTransition('bookZoom')
 
   return (
     <motion.div
@@ -99,7 +91,7 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
       onAnimationComplete={(definition) => {
         if (definition === 'exit') onExited()
       }}
-      transition={CLOSE_TRANSITION}
+      transition={bookZoomTransition}
       onClick={(e) => e.target === e.currentTarget && onClose()}
       data-cursor="close"
     >
@@ -114,15 +106,23 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
         ✕
       </button>
 
-      {/* Open book shaped shell and navigation */}
+      {/* Main stage wrapper */}
       <div className="flex flex-col items-center" data-cursor="none">
-        <div className="book-object" onClick={(e) => e.stopPropagation()} >
+        <motion.div
+          layoutId={`book-volume-${book.slug}`}
+          className="book-object relative preserve-3d"
+          transition={bookZoomTransition}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Left Panel Decorative Stand-in */}
           <div className="book-left-panel">
             <div className="book-left-panel-page-stack" style={{ width: `${leftStackPercent}%` }} />
           </div>
+
           <div className="book-open-spine" />
 
-          <div className="book-right-panel">
+          {/* Right Panel / Open Page Stack */}
+          <div className="book-right-panel relative">
             <button
               type="button"
               className="page-nav-zone page-nav-left"
@@ -142,28 +142,23 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
               data-cursor-color={book.accentColor}
             />
 
-            {/* Pages and turning animation */}
             <div className="page-stack">
-              <motion.section
-                layoutId={`book-${book.slug}`}
-                transition={BOOK_SPRING_TRANSITION}
-                className="reader-page-flat"
-                style={{ backgroundColor: basePage.backgroundColor }}
-              >
+              <section className="reader-page-flat" style={{ backgroundColor: basePage.backgroundColor }}>
                 <PageContent page={basePage} accentColor={book.accentColor} />
-              </motion.section>
+              </section>
 
               {turn && turningPage && (
                 <motion.section
                   key={`${turningIndex}-${turn.direction}`}
-                  className="reader-page-flat page-turning"
+                  className="reader-page-flat page-turning absolute inset-0 z-10"
                   style={{
                     backgroundColor: turningPage.backgroundColor,
                     transformOrigin: 'left center',
+                    backfaceVisibility: 'hidden',
                   }}
-                  initial={{ rotateY: reduceMotion ? turnTo : turnFrom }}
+                  initial={{ rotateY: turnFrom }}
                   animate={{ rotateY: turnTo }}
-                  transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.45, 0, 0.2, 1] }}
+                  transition={pageTurnTransition}
                   onAnimationComplete={() => setTurn(null)}
                 >
                   <PageContent page={turningPage} accentColor={book.accentColor} />
@@ -180,9 +175,41 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
               )}
             </div>
           </div>
-        </div>
 
-        {/* Progress bar to jump around book */}
+          {/* 
+            Simultaneous Cover Flip:
+            Rotates -180deg from right to left concurrently as the book flies onto the stage.
+          */}
+          <motion.div
+            className="book-cover-flipper absolute inset-0 z-30 pointer-events-none"
+            style={{
+              transformOrigin: 'left center',
+              backfaceVisibility: 'hidden',
+            }}
+            variants={coverVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <div className="book-cover-top h-full w-full">
+              <div className="book-cover-content">
+                <div className="book-cover-image flex min-h-0 min-w-0">
+                  <img
+                    src={book.cover.src}
+                    alt={book.cover.alt}
+                    className="max-h-full max-w-full h-auto w-auto"
+                  />
+                </div>
+                <div className="book-cover-title" style={{ color: book.cover.textColor }}>
+                  <p>{book.title}</p>
+                  <p>{book.year}</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Progress Navigation */}
         <BookProgress
           className="mt-8 mb-6 z-10"
           currentPage={pageIndex}
