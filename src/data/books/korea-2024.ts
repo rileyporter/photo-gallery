@@ -48,14 +48,14 @@ export const koreaBook = createBook({
         },
         {
           type: 'image',
-          size: 'large',
+          size: 'medium',
           src: '/photos/korea/bamboo-split-2.jpg',
           alt: 'A bamboo forest outside of Busan',
           justify: {vertical: 'top'}
         },
         {
           type: 'image',
-          size: 'large',
+          size: 'small',
           src: '/photos/korea/bamboo-split-3.jpg',
           alt: 'A bamboo forest outside of Busan',
           justify: {vertical: 'top'}

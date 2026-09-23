@@ -4,7 +4,7 @@
 // left panel is a decorative, near-perpendicular stand-in for the
 // already-read pages.
 
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 import { useEffect, useState } from 'react'
 import BookProgress from './BookProgress.tsx'
 import PageContent from './PageContent.tsx'
@@ -24,8 +24,16 @@ interface Turn {
   direction: Direction
 }
 
+// A shared constant to sync shrink and fade animation when closing the book
+const CLOSE_DURATION = 0.4
+
 export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
   const shellStyle: CSSVarStyle = { '--book-accent': book.accentColor }
+  const shellVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 },
+  }
   const reduceMotion = useReducedMotion()
 
   const [pageIndex, setPageIndex] = useState(0)
@@ -90,15 +98,17 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
       layoutId={undefined}
       className="reader-shell fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-bg/95"
       style={shellStyle}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      variants={shellVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
       onAnimationComplete={(definition) => {
+        console.log(definition)
         // Fires whenever the animation is complete, both for opening and closing
         // When closing, triggers the onExited handler
         if (definition === 'exit') onExited()
       }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: CLOSE_DURATION }}
       // Click-outside-to-close; only fires on the backdrop itself, not
       // clicks bubbling up from the book
       onClick={(e) => e.target === e.currentTarget && onClose()}
@@ -124,7 +134,8 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
           // Same layoutId as ClosedBook, for motion to animate the closed book to a book shaped shell
           layoutId={`book-${book.slug}`}
           className="book-object"
-          transition={{ type: 'spring', stiffness: 260, damping: 32 }}
+          // bounce to overshoot cover closing slightly, to give a natural spring feel
+          transition={{ type: 'spring', duration: CLOSE_DURATION, bounce: 0 }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="book-left-panel">

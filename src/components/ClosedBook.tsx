@@ -3,7 +3,7 @@
 // Uses a shared `layoutId` with the open book display for animating
 // transitions between picking up a book and closing it.
 
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import type { Book } from '../data/library.ts'
 import type { CSSVarStyle } from '../types/css.ts'
 
@@ -58,10 +58,10 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
             </motion.div>
           </div>
 
-          <div className="book-closed-spine" style={toggleOpacity}>
-            <div className="book-spine-edge" />
-            <div className="book-spine-front" />
-            <div className="book-spine-bottom" />
+          <div className="book-closed-spine" >
+            <div className="book-spine-edge" style={toggleOpacity} />
+            <div className="book-spine-front" style={toggleOpacity} />
+            <div className="book-spine-bottom" style={toggleOpacity} />
           </div>
 
           <div className="book-right-pages" style={toggleOpacity} />

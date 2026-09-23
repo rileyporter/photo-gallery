@@ -19,6 +19,10 @@ export default function App() {
   const [closingSlug, setClosingSlug] = useState<string | null>(null)
   const openBook = openSlug ? booksBySlug.get(openSlug) ?? null : null
   
+  // True whenever the open book view is visible in any capacity
+  const hiddenSlug = openSlug ?? closingSlug
+  const isReaderActive = hiddenSlug !== null
+
   function handleClose(slug: string) {
     setClosingSlug(slug)
     setOpenSlug(null)
@@ -26,10 +30,10 @@ export default function App() {
 
   return (
     // LayoutGroup groups together the matching pair of ClosedBook
-    // and OpenBook components with layoutId, so that Framer Motion can
+    // and OpenBook components with layoutId, so that React Motion can
     // compute bounding box sizes and animate between them
     <LayoutGroup>
-      <div className="min-h-screen bg-bg text-ink">
+      <div className={`gallery-stage min-h-screen bg-bg text-ink ${isReaderActive ? 'gallery-dimmed' : ''}`}>
         <header className="flex items-center gap-2 px-6 py-8 md:px-10">
           <div className="header-icon h-10 w-10">
             <img src="/favicon.svg" alt="A stylized daisy icon" />
@@ -43,7 +47,7 @@ export default function App() {
               key={shelf.id}
               books={shelf.books}
               onSelect={setOpenSlug}
-              openSlug={openSlug ?? closingSlug}
+              openSlug={hiddenSlug}
             />
           ))}
         </main>

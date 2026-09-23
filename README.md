@@ -74,8 +74,6 @@ npm run dev
 - Text bug, where text on a page gets clipped by an image row/column
 - Images not sizing correctly with other elements on the page
 - Verify the onExited() animation solution is efficient and semantically correct
-- Found a bug with onExited() solution, it hides the rest of the book (besides the cover) after
-  close
 - No explicit width/height on either <img>. Beyond causing layout shift as the image decodes, this
   also means the browser can't reserve space or prioritize the fetch as intelligently as it could
   with known intrinsic dimensions up front. Address as part of fine tuning performance.
@@ -87,6 +85,11 @@ npm run dev
   one. Or top and bottom. Positionally, photos should be able to determine their edges and size
   accordingly to snap to the edges. That breaks the current grid design at least a little, need
   to reconsider a larger layout redesign
+- Size of image setting in data is not as useful as I'd like. It would be useful to have a size
+  denote "all of these images have the same importance weighting, so scale them all the same
+  amount, keeping their respective aspect ratios". This might be part of a PageLayout redesign
+- Make the book opening and closing animation more immersive, with not just the cover being the
+  animation object, but the whole 3D book, with the cover flipping open and closed.
 
 
 

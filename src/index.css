@@ -365,6 +365,16 @@ body {
 
 /* ##### Open Book Styling Properties ##### */
 
+/* Dim the gallery behind the open book for immersion */
+.gallery-stage {
+  filter: none;
+  transition: filter var(--duration-base) var(--ease-standard);
+}
+
+.gallery-dimmed {
+  filter: grayscale(0.85) brightness(0.55) blur(1.5px);
+}
+
 /* Transition for cursor color on close button */
 .reader-close {
   transition: color var(--duration-fast) var(--ease-standard);
