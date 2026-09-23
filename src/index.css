@@ -253,7 +253,6 @@ body {
     rotateY(-90deg)
     translateX(calc(var(--book-d) / 2));
   background: var(--book-accent);
-  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .book-spine-front {
@@ -293,7 +292,6 @@ body {
     rotateY(90deg)
     translateX(calc(var(--book-d)  / -2));
   background: var(--book-page-color);
-  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 .book-bottom-pages {
@@ -305,7 +303,6 @@ body {
     rotateX(90deg)
     translateY(calc(var(--book-d) / 2));
   background: color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 35%, var(--book-page-color)); 
-  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 
 /* ##### Custom Cursor Styling ##### */
