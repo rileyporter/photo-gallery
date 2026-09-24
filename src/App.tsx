@@ -16,22 +16,16 @@ const booksBySlug = new Map(
 export default function App() {
 
   const [openSlug, setOpenSlug] = useState<string | null>(null)
-  const [activeFlightSlug, setActiveFlightSlug] = useState<string | null>(null)
   const openBook = openSlug ? booksBySlug.get(openSlug) ?? null : null
 
   const handleSelect = useCallback((slug: string) => {
     setOpenSlug(slug)
-    setActiveFlightSlug(slug)
     window.dispatchEvent(new Event('cursor:recheck'))
   }, [])
 
   const handleClose = useCallback(() => {
     setOpenSlug(null)
     window.dispatchEvent(new Event('cursor:recheck'))
-  }, [])
-
-  const handleExitComplete = useCallback(() => {
-    setActiveFlightSlug(null)
   }, [])
 
   return (
@@ -53,14 +47,14 @@ export default function App() {
               key={shelf.id}
               books={shelf.books}
               onSelect={handleSelect}
-              openSlug={activeFlightSlug}
+              openSlug={openSlug}
             />
           ))}
         </main>
       </div>
 
       {/* AnimatePresence retains OpenBook in the DOM during its exit variants */}
-      <AnimatePresence onExitComplete={handleExitComplete} presenceAffectsLayout={false} mode="sync">
+      <AnimatePresence presenceAffectsLayout={false} mode="sync">
         {openBook && (
           <OpenBook
             key={openBook.slug}

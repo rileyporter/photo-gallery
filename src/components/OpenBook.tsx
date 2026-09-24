@@ -5,7 +5,12 @@ import { motion } from 'motion/react'
 import { useCallback, useEffect, useState } from 'react'
 import BookProgress from './BookProgress.tsx'
 import PageContent from './PageContent.tsx'
-import { usePageFlipTransition, useModalShellVariants, useBookZoomVariants, useCoverFlipVariants} from '../constants/animations'
+import {
+  usePageFlipTransition,
+  useModalShellVariants,
+  useBookZoomVariants,
+  useCoverFlipVariants
+} from '../constants/animations'
 import type { Book } from '../data/library.ts'
 import type { CSSVarStyle } from '../types/css.ts'
 
