@@ -14,12 +14,21 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
   const wrapStyle: CSSVarStyle = {
     '--book-accent': book.accentColor,
     '--book-length': book.pages.length,
+    // visibility: hidden ? 'hidden' : 'visible',
+
   }
 
   const bookZoomTransition = useTransition('bookZoom')
 
   return (
-    <div className="book-volume-wrap" style={wrapStyle}>
+    <div
+      className="book-volume-wrap"
+      style={{
+        ...wrapStyle,
+        opacity: hidden ? 0 : 1,
+        pointerEvents: hidden ? 'none' : 'auto',
+      }}
+    >
       <div
         className="book-hit-area"
         onClick={() => onSelect(book.slug)}
@@ -42,7 +51,6 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
             style={{
               // Has to be set here so React motion doesn't override during layout projection
               transformStyle: 'preserve-3d',
-              visibility: hidden ? 'hidden' : 'visible',
             }}
           >
             {/* Front cover face */}

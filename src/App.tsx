@@ -3,7 +3,7 @@
 // open BookReader for a current book and the necessary animation hooks
 
 import { LayoutGroup, AnimatePresence } from 'motion/react'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import Shelf from './components/Shelf.tsx'
 import OpenBook from './components/OpenBook.tsx'
 import Cursor from './components/Cursor.tsx'
@@ -16,29 +16,35 @@ const booksBySlug = new Map(
 export default function App() {
 
   const [openSlug, setOpenSlug] = useState<string | null>(null)
-  const [closingSlug, setClosingSlug] = useState<string | null>(null)
+  const [activeFlightSlug, setActiveFlightSlug] = useState<string | null>(null)
   const openBook = openSlug ? booksBySlug.get(openSlug) ?? null : null
-  
-  // True whenever the open book view is visible in any capacity
-  const hiddenSlug = openSlug ?? closingSlug
-  const isReaderActive = hiddenSlug !== null
 
-  function handleClose(slug: string) {
-    setClosingSlug(slug)
+  const handleSelect = useCallback((slug: string) => {
+    setOpenSlug(slug)
+    setActiveFlightSlug(slug)
+    window.dispatchEvent(new Event('cursor:recheck'))
+  }, [])
+
+  const handleClose = useCallback(() => {
     setOpenSlug(null)
-  }
+    window.dispatchEvent(new Event('cursor:recheck'))
+  }, [])
+
+  const handleExitComplete = useCallback(() => {
+    setActiveFlightSlug(null)
+  }, [])
 
   return (
     // LayoutGroup groups together the matching pair of ClosedBook
     // and OpenBook components with layoutId, so that React Motion can
     // compute bounding box sizes and animate between them
     <LayoutGroup>
-      <div className={`gallery-stage min-h-screen bg-bg text-ink ${isReaderActive ? 'gallery-dimmed' : ''}`}>
+      <div className={`gallery-stage min-h-screen bg-bg text-ink ${openSlug ? 'gallery-dimmed' : ''}`}>
         <header className="flex items-center gap-2 px-6 py-8 md:px-10">
           <div className="header-icon h-10 w-10">
             <img src="/favicon.svg" alt="A stylized daisy icon" />
           </div>
-          <p className="font-display text-xl text-ink">DAISY</p>
+          <p className="font-display text-xl text-ink">DAISY Gallery</p>
         </header>
 
         <main className="flex flex-col gap-20 pb-24">
@@ -46,24 +52,23 @@ export default function App() {
             <Shelf
               key={shelf.id}
               books={shelf.books}
-              onSelect={setOpenSlug}
-              openSlug={hiddenSlug}
+              onSelect={handleSelect}
+              openSlug={activeFlightSlug}
             />
           ))}
         </main>
       </div>
 
-      {/* AnimatePresence handles holding onto the open OpenBook on close,
-          if we want to later add an exit animation */ }
-      <AnimatePresence>
-      {openBook && (
-        <OpenBook
-          book={openBook}
-          onClose={() => handleClose(openBook.slug)}
-          onExited={() => setClosingSlug(null)}
-        />
-      )}
-    </AnimatePresence>
+      {/* AnimatePresence retains OpenBook in the DOM during its exit variants */}
+      <AnimatePresence onExitComplete={handleExitComplete}>
+        {openBook && (
+          <OpenBook
+            key={openBook.slug}
+            book={openBook}
+            onClose={handleClose}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Cursor manages all window-level mouse listeners. Mounted inside LayoutGroup component
           for convenience as that is the current overall root for the app. */}

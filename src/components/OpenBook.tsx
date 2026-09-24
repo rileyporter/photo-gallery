@@ -12,7 +12,6 @@ import type { CSSVarStyle } from '../types/css.ts'
 interface OpenBookProps {
   book: Book
   onClose: () => void
-  onExited: () => void
 }
 
 type Direction = 'left' | 'right'
@@ -22,7 +21,7 @@ interface Turn {
   direction: Direction
 }
 
-export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
+export default function OpenBook({ book, onClose }: OpenBookProps) {
   const shellStyle: CSSVarStyle = { '--book-accent': book.accentColor }
 
   const [pageIndex, setPageIndex] = useState(0)
@@ -88,9 +87,6 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
       initial="hidden"
       animate="visible"
       exit="exit"
-      onAnimationComplete={(definition) => {
-        if (definition === 'exit') onExited()
-      }}
       transition={bookZoomTransition}
       onClick={(e) => e.target === e.currentTarget && onClose()}
       data-cursor="close"
@@ -111,6 +107,10 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
         <motion.div
           layoutId={`book-volume-${book.slug}`}
           className="book-object relative preserve-3d"
+          style={{
+            transformStyle: 'preserve-3d',
+            visibility: 'visible',
+          }}
           transition={bookZoomTransition}
           onClick={(e) => e.stopPropagation()}
         >
@@ -184,14 +184,17 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
             className="book-cover-flipper absolute inset-0 z-30 pointer-events-none"
             style={{
               transformOrigin: 'left center',
-              backfaceVisibility: 'hidden',
+              transformStyle: 'preserve-3d',
             }}
             variants={coverVariants}
             initial="initial"
             animate="animate"
             exit="exit"
           >
-            <div className="book-cover-top h-full w-full">
+            <div
+              className="book-cover-top absolute inset-0 h-full w-full"
+              style={{ backfaceVisibility: 'hidden' }}
+            >
               <div className="book-cover-content">
                 <div className="book-cover-image flex min-h-0 min-w-0">
                   <img
@@ -206,6 +209,15 @@ export default function OpenBook({ book, onClose, onExited }: OpenBookProps) {
                 </div>
               </div>
             </div>
+
+            {/* Inside Cover Backface */}
+            <div
+              className="book-cover-inside absolute inset-0 h-full w-full bg-paper"
+              style={{
+                backfaceVisibility: 'hidden',
+                transform: 'rotateY(180deg)',
+              }}
+            />
           </motion.div>
         </motion.div>
 

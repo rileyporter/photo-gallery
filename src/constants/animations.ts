@@ -49,7 +49,7 @@ const COVER_FLIP_VARIANTS: Variants = {
   exit: {
     rotateY: 0,
     transition: {
-      duration: SHARED_TRANSITION_DURATION * 0.6,
+      duration: SHARED_TRANSITION_DURATION,
       ease: [0.32, 0, 0.67, 0], // Snappy ease-in for closing
     },
   },
@@ -87,7 +87,16 @@ export function useCoverFlipVariants(): Variants {
  * Backdrop / shell fade variants for modal overlays
  */
 export const MODAL_SHELL_VARIANTS: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-  exit: { opacity: 0 },
+  hidden: { 
+    opacity: 0,
+    pointerEvents: 'none',
+  },
+  visible: { 
+    opacity: 1,
+    pointerEvents: 'auto',
+  },
+  exit: { 
+    opacity: 0,
+    pointerEvents: 'none',
+  },
 }
