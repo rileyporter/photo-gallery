@@ -79,7 +79,29 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
   const pageTurnTransition = useTransition('pageTurn')
   const bookZoomTransition = useTransition('bookZoom')
 
+/*
+[reader-shell]  <-- 1. Backdrop overlay & AnimatePresence host
+   │
+   └── [close button]
+   |
+   └── [div flex flex-col items-center]  <-- 2. Layout Container, necessary for flex rules
+          │
+          ├── [motion.div book-object layoutId="..."]  <-- 3. Pure 2D Bounding Box for Motion
+          │      │
+          │      └── [book-3d-open]  <-- 4. 3D elements for animations (Book covers, page flipper)
+          |             │
+          |             ├── [book-left-panel]
+          |             ├── [book-right-panel]
+          |             └── [motion.div book-cover-flipper]  <-- Cover flip animation
+          |                     │
+          |                     ├── [book-cover-top]
+          |                     └── [book-cover-inside]
+          │
+          └── [BookProgress]  <-- 5. Independent UI Control (outside book bounding box for Motion)
+*/
+
   return (
+    // Backdrop overlay
     <motion.div
       className="reader-shell fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-bg/95"
       style={shellStyle}
@@ -102,123 +124,110 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
         ✕
       </button>
 
-      {/* Main stage wrapper */}
+      {/* Layout container for establishing flex layout and progress bar outside of book */}
       <div className="flex flex-col items-center" data-cursor="none">
+
+        {/* 2D bounding box used by Motion transformation when animating book open and closed */}
         <motion.div
           layoutId={`book-volume-${book.slug}`}
-          className="book-object relative preserve-3d"
-          style={{
-            transformStyle: 'preserve-3d',
-            visibility: 'visible',
-          }}
+          layout
+          className="book-object"
           transition={bookZoomTransition}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Left Panel Decorative Stand-in */}
-          <div className="book-left-panel">
-            <div className="book-left-panel-page-stack" style={{ width: `${leftStackPercent}%` }} />
-          </div>
 
-          <div className="book-open-spine" />
+          {/* 3D book object that contains any 3D animations */}
+          <div className="book-3d-open flex preserve-3d relative h-full w-full">
 
-          {/* Right Panel / Open Page Stack */}
-          <div className="book-right-panel relative">
-            <button
-              type="button"
-              className="page-nav-zone page-nav-left"
-              onClick={() => goTo(pageIndex - 1, 'left')}
-              aria-label="Previous page"
-              disabled={isFirstPage}
-              data-cursor={isFirstPage ? undefined : 'prev'}
-              data-cursor-color={book.accentColor}
-            />
-            <button
-              type="button"
-              className="page-nav-zone page-nav-right"
-              onClick={() => goTo(pageIndex + 1, 'right')}
-              aria-label="Next page"
-              disabled={isLastPage}
-              data-cursor={isLastPage ? undefined : 'next'}
-              data-cursor-color={book.accentColor}
-            />
-
-            <div className="page-stack">
-              <section className="reader-page-flat" style={{ backgroundColor: basePage.backgroundColor }}>
-                <PageContent page={basePage} accentColor={book.accentColor} />
-              </section>
-
-              {turn && turningPage && (
-                <motion.section
-                  key={`${turningIndex}-${turn.direction}`}
-                  className="reader-page-flat page-turning absolute inset-0 z-10"
-                  style={{
-                    backgroundColor: turningPage.backgroundColor,
-                    transformOrigin: 'left center',
-                    backfaceVisibility: 'hidden',
-                  }}
-                  initial={{ rotateY: turnFrom }}
-                  animate={{ rotateY: turnTo }}
-                  transition={pageTurnTransition}
-                  onAnimationComplete={() => setTurn(null)}
-                >
-                  <PageContent page={turningPage} accentColor={book.accentColor} />
-                  <div
-                    className="page-turn-shade absolute inset-0 pointer-events-none"
-                    style={{
-                      background:
-                        turn.direction === 'right'
-                          ? 'linear-gradient(to right, transparent 55%, rgba(0,0,0,0.4))'
-                          : 'linear-gradient(to left, transparent 55%, rgba(0,0,0,0.4))',
-                    }}
-                  />
-                </motion.section>
-              )}
+            {/* Left Panel Decorative Stand-in */}
+            <div className="book-left-panel">
+              <div className="book-left-panel-page-stack" style={{ width: `${leftStackPercent}%` }} />
             </div>
-          </div>
 
-          {/* 
-            Simultaneous Cover Flip:
-            Rotates -180deg from right to left concurrently as the book flies onto the stage.
-          */}
-          <motion.div
-            className="book-cover-flipper absolute inset-0 z-30 pointer-events-none"
-            style={{
-              transformOrigin: 'left center',
-              transformStyle: 'preserve-3d',
-            }}
-            variants={coverVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            <div
-              className="book-cover-top absolute inset-0 h-full w-full"
-              style={{ backfaceVisibility: 'hidden' }}
+            <div className="book-open-spine" />
+
+            {/* Right Panel / Open Page Stack */}
+            <div className="book-right-panel relative">
+              <button
+                type="button"
+                className="page-nav-zone page-nav-left"
+                onClick={() => goTo(pageIndex - 1, 'left')}
+                aria-label="Previous page"
+                disabled={isFirstPage}
+                data-cursor={isFirstPage ? undefined : 'prev'}
+                data-cursor-color={book.accentColor}
+              />
+              <button
+                type="button"
+                className="page-nav-zone page-nav-right"
+                onClick={() => goTo(pageIndex + 1, 'right')}
+                aria-label="Next page"
+                disabled={isLastPage}
+                data-cursor={isLastPage ? undefined : 'next'}
+                data-cursor-color={book.accentColor}
+              />
+
+              <div className="page-stack">
+                <section className="reader-page-flat" style={{ backgroundColor: basePage.backgroundColor }}>
+                  <PageContent page={basePage} accentColor={book.accentColor} />
+                </section>
+
+                {turn && turningPage && (
+                  <motion.section
+                    key={`${turningIndex}-${turn.direction}`}
+                    className="reader-page-flat page-turning absolute inset-0 z-10"
+                    style={{
+                      backgroundColor: turningPage.backgroundColor,
+                      transformOrigin: 'left center',
+                      backfaceVisibility: 'hidden',
+                    }}
+                    initial={{ rotateY: turnFrom }}
+                    animate={{ rotateY: turnTo }}
+                    transition={pageTurnTransition}
+                    onAnimationComplete={() => setTurn(null)}
+                  >
+                    <PageContent page={turningPage} accentColor={book.accentColor} />
+                    <div
+                      className="page-turn-shade absolute inset-0 pointer-events-none"
+                      style={{
+                        background:
+                          turn.direction === 'right'
+                            ? 'linear-gradient(to right, transparent 55%, rgba(0,0,0,0.4))'
+                            : 'linear-gradient(to left, transparent 55%, rgba(0,0,0,0.4))',
+                      }}
+                    />
+                  </motion.section>
+                )}
+              </div>
+            </div>
+
+            {/* Cover flipper */}
+            <motion.div
+              className="book-cover-flipper absolute inset-0 z-30 pointer-events-none"
+              variants={coverVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
             >
-              <div className="book-cover-content">
-                <div className="book-cover-image flex min-h-0 min-w-0">
+              <div className="book-cover-top absolute inset-0" >
+                <div className="book-cover-content">
                   <img
                     src={book.cover.src}
                     alt={book.cover.alt}
                     className="max-h-full max-w-full h-auto w-auto"
                   />
-                </div>
-                <div className="book-cover-title" style={{ color: book.cover.textColor }}>
-                  <p>{book.title}</p>
-                  <p>{book.year}</p>
+
+                  <div className="book-cover-title" style={{ color: book.cover.textColor }}>
+                    <p>{book.title}</p>
+                    <p>{book.year}</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Inside Cover Backface */}
-            <div
-              className="book-cover-inside absolute inset-0 h-full w-full bg-paper"
-              style={{
-                backfaceVisibility: 'hidden',
-                transform: 'rotateY(180deg)',
-              }}
-            />
-          </motion.div>
+              {/* Inside Cover Backface */}
+              <div className="book-cover-inside absolute inset-0 bg-paper" />
+            </motion.div>
+          </div>
         </motion.div>
 
         {/* Progress Navigation */}

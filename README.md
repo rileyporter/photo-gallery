@@ -88,8 +88,7 @@ npm run dev
 - Size of image setting in data is not as useful as I'd like. It would be useful to have a size
   denote "all of these images have the same importance weighting, so scale them all the same
   amount, keeping their respective aspect ratios". This might be part of a PageLayout redesign
-- Make the book opening and closing animation more immersive, with not just the cover being the
-  animation object, but the whole 3D book, with the cover flipping open and closed.
+- BookCover is duplicated content between the open and closed book. Need to extract into a component
 
 
 

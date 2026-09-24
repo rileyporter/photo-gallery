@@ -97,7 +97,6 @@ body {
   margin-top: -4px;
   width: min(92vw, 980px);
   height: 22px;
-  border-radius: 1px;
   background: linear-gradient(180deg, theme('colors.secondary') 0%, transparent 100%);
   border-radius: 8px;
   box-shadow:
@@ -107,43 +106,9 @@ body {
 
 /* ##### Book 3D Solid Styling ##### */
 
-/* .book-volume:hover,
-.book-volume:focus-visible {
-  box-shadow:
-    0 34px 44px -16px rgba(0, 0, 0, 0.75),
-    0 0 46px -6px color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 55%, transparent);
-} */
-
-.book-volume:focus-visible {
-  outline: 2px solid var(--book-accent, theme('colors.accent'));
-  outline-offset: 6px;
-}
 
 
-@media (prefers-reduced-motion: reduce) {
-  /* Respects the OS-level "reduce motion" accessibility setting — the
-     hover transform still happens (position/state still changes) but
-     without the animated transition between states. */
-  .book-volume {
-    transition: none;
-  }
-}
-
-.book-volume-wrap {
-  --book-w: clamp(120px, 20vw, 190px);
-  --book-h: calc(var(--book-w) * 1.25);
-  --book-d: clamp(15px, calc(var(--book-length) * var(--book-w) * 0.01), 40px); /* book depth */
-  --book-spine-width: calc(var(--book-w) * 0.02);
-  --book-body-w: calc(var(--book-w) - var(--book-spine-width));
-  --book-page-color: #EDE7DA;
-  --book-page-left-shift: calc(var(--book-w) * 0.015); /* percentage of overall book width */
-  --book-page-up-shift:  calc(var(--book-h) * 0.01); /* percentage of overall book height */
-  perspective: 2400px; /* large value → less per-book distortion */
-  transform-style: preserve-3d;
-  position: relative;
-}
-
-.book-volume {
+.book-3d-closed {
   position: relative;
   width: var(--book-w);
   height: var(--book-h);
@@ -156,29 +121,51 @@ body {
 
 .book-hit-area {
   /* Stable target for hover and click behavior while book animates */
+  --book-w: clamp(120px, 20vw, 190px);
+  --book-h: calc(var(--book-w) * 1.25);
+  --book-d: clamp(15px, calc(var(--book-length) * var(--book-w) * 0.01), 40px); /* book depth */
+  --book-spine-width: calc(var(--book-w) * 0.02);
+  --book-body-w: calc(var(--book-w) - var(--book-spine-width));
+  --book-page-color: #EDE7DA;
+  --book-page-left-shift: calc(var(--book-w) * 0.015); /* percentage of overall book width */
+  --book-page-up-shift:  calc(var(--book-h) * 0.01); /* percentage of overall book height */
+  perspective: 2400px; /* large value → less per-book distortion */
+  transform-style: preserve-3d;
   position: relative;
   width: var(--book-w);
   height: var(--book-h);
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 
-.book-hit-area:hover .book-volume,
-.book-hit-area:focus-visible .book-volume {
+.book-hit-area:hover .book-3d-closed,
+.book-hit-area:focus-visible .book-3d-closed {
   transform: rotateX(35deg) rotateY(-10deg) translateY(-30px);
 }
 
-.book-volume:focus-visible {
+/* .book-3d-closed:hover,
+.book-3d-closed:focus-visible {
+  box-shadow:
+    0 34px 44px -16px rgba(0, 0, 0, 0.75),
+    0 0 46px -6px color-mix(in srgb, var(--book-accent, theme('colors.secondary')) 55%, transparent);
+} */
+
+/* .book-3d-closed:focus-visible {
   outline: 2px solid var(--book-accent, theme('colors.accent'));
   outline-offset: 6px;
-}
+} */
 
 @media (prefers-reduced-motion: reduce) {
-  .book-volume {
+  .book-3d-closed {
     transition: none;
   }
 }
 
-/* Positions the faces of the book at a shared starting point in the center of the book-volume */
+.book-cover-flipper {
+  transform-origin: left center;
+  transform-style: preserve-3d;
+}
+
+/* Positions the faces of the book at a shared starting point in the center of the book-3d-closed */
 .book-face-front,
 .book-closed-spine,
 .book-right-pages,
@@ -197,6 +184,12 @@ body {
   border-radius: 2px;
   box-shadow: 0 26px 34px -18px rgba(0, 0, 0, 0.65);
   background-color: var(--book-accent);
+  backface-visibility: hidden;
+}
+
+.book-cover-inside {
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
 }
 
 .book-face-front {
@@ -218,9 +211,6 @@ body {
   --book-cover-padding: calc(var(--book-w) * 0.10);
   padding: var(--book-cover-padding);
   position: relative;
-}
-
-.book-cover-image {
   margin-top: calc(var(--book-h) * 0.05);
 }
 
@@ -460,12 +450,14 @@ body {
 
 .book-object {
   position: relative;
+  transform-style: preserve-3d;
   display: flex;
   width: 93vw;
   height: 75vh;
   perspective: 2200px;
   box-shadow: 0 60px 100px -30px rgba(0, 0, 0, 0.7);
   background: var(--site-muted);
+  visibility: visible;
 }
 
 .book-left-panel {
