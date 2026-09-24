@@ -1,6 +1,6 @@
 // Component for a single closed 3D book volume on the shelf
 import { motion } from 'motion/react'
-import { useTransition } from '../constants/animations'
+import { useBookZoomVariants } from '../constants/animations'
 import type { Book } from '../data/library.ts'
 import type { CSSVarStyle } from '../types/css.ts'
 
@@ -20,12 +20,12 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
 
   }
 
-  const bookZoomTransition = useTransition('bookZoom')
+  const bookZoomVariants = useBookZoomVariants()
 
 /*
 [book-hit-area]  <-- 1. Captures mouse hovers & clicks
    │
-   └── [motion.div book-volume layoutId="..."]  <-- 2. Pure 2D Bounding Box (Motion spatial flight only)
+   └── [motion.div book-volume layoutId={}]  <-- 2. Pure 2D Bounding Box (Motion spatial flight only)
           │
           └── [book-3d-closed]  <-- 3. CSS 3D Hover Transforms & preserve-3d
                  │
@@ -59,7 +59,10 @@ export default function ClosedBook({ book, onSelect, hidden }: ClosedBookProps) 
         className="book-volume"
         layoutId={`book-volume-${book.slug}`}
         layout
-        transition={bookZoomTransition}
+        variants={bookZoomVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
       >
         {/* Element used for 3D transformations in CSS, e.g. on hover */}
         <div className="book-3d-closed preserve-3d h-full w-full" >

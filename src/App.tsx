@@ -60,7 +60,7 @@ export default function App() {
       </div>
 
       {/* AnimatePresence retains OpenBook in the DOM during its exit variants */}
-      <AnimatePresence onExitComplete={handleExitComplete}>
+      <AnimatePresence onExitComplete={handleExitComplete} presenceAffectsLayout={false} mode="sync">
         {openBook && (
           <OpenBook
             key={openBook.slug}

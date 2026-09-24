@@ -5,7 +5,7 @@ import { motion } from 'motion/react'
 import { useCallback, useEffect, useState } from 'react'
 import BookProgress from './BookProgress.tsx'
 import PageContent from './PageContent.tsx'
-import { useTransition, MODAL_SHELL_VARIANTS, useCoverFlipVariants} from '../constants/animations'
+import { usePageFlipTransition, useModalShellVariants, useBookZoomVariants, useCoverFlipVariants} from '../constants/animations'
 import type { Book } from '../data/library.ts'
 import type { CSSVarStyle } from '../types/css.ts'
 
@@ -76,17 +76,20 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
   const turnTo = turn?.direction === 'left' ? 0 : -100
 
   const coverVariants = useCoverFlipVariants()
-  const pageTurnTransition = useTransition('pageTurn')
-  const bookZoomTransition = useTransition('bookZoom')
+  const modalShellVariants = useModalShellVariants()
+  const pageFlipTransition = usePageFlipTransition()
+  const bookZoomVariants = useBookZoomVariants()
 
 /*
-[reader-shell]  <-- 1. Backdrop overlay & AnimatePresence host
+[reader-shell]  <-- 1. AnimatePresence host
+   │
+   └── [reader-backdrop] Backdrop overlay  
    │
    └── [close button]
    |
    └── [div flex flex-col items-center]  <-- 2. Layout Container, necessary for flex rules
           │
-          ├── [motion.div book-object layoutId="..."]  <-- 3. Pure 2D Bounding Box for Motion
+          ├── [motion.div book-object layoutId={}]  <-- 3. Pure 2D Bounding Box for Motion
           │      │
           │      └── [book-3d-open]  <-- 4. 3D elements for animations (Book covers, page flipper)
           |             │
@@ -101,18 +104,22 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
 */
 
   return (
-    // Backdrop overlay
-    <motion.div
-      className="reader-shell fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-bg/95"
-      style={shellStyle}
-      variants={MODAL_SHELL_VARIANTS}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      transition={bookZoomTransition}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-      data-cursor="close"
-    >
+    // Overall open book reader shell and AnimatePresence host
+    <div className="reader-shell fixed inset-0 z-50 flex items-center justify-center overflow-hidden">
+
+      {/* Backdrop overlay */}
+      <motion.div
+        className="reader-backdrop absolute inset-0 bg-bg/95"
+        style={shellStyle}
+        variants={modalShellVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        // should also have a transition?
+        onClick={(e) => e.target === e.currentTarget && onClose()}
+        data-cursor="close"
+      />
+
       {/* Close button */}
       <button
         type="button"
@@ -131,8 +138,11 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
         <motion.div
           layoutId={`book-volume-${book.slug}`}
           layout
+          variants={bookZoomVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
           className="book-object"
-          transition={bookZoomTransition}
           onClick={(e) => e.stopPropagation()}
         >
 
@@ -183,7 +193,7 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
                     }}
                     initial={{ rotateY: turnFrom }}
                     animate={{ rotateY: turnTo }}
-                    transition={pageTurnTransition}
+                    transition={pageFlipTransition}
                     onAnimationComplete={() => setTurn(null)}
                   >
                     <PageContent page={turningPage} accentColor={book.accentColor} />
@@ -208,6 +218,7 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
               initial="initial"
               animate="animate"
               exit="exit"
+              // transition={bookZoomTransition}
             >
               <div className="book-cover-top absolute inset-0" >
                 <div className="book-cover-content">
@@ -239,6 +250,6 @@ export default function OpenBook({ book, onClose }: OpenBookProps) {
           onSeek={handleSeek}
         />
       </div>
-    </motion.div>
+    </div>
   )
 }

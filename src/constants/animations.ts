@@ -1,69 +1,62 @@
 import { Transition, Variants, useReducedMotion } from 'motion/react'
 
-
-export type AnimationPreset = 'bookZoom' | 'coverFlipOpen' | 'coverFlipClosed' | 'pageTurn'
-
 /**
- * Shared duration transition curve for both flight and cover flip.
+ * Shared duration transition curve for both book flight and cover flip.
  */
-const SHARED_TRANSITION_DURATION = 3.0
+const SHARED_TRANSITION_DURATION = 0.7
 
-const TRANSITIONS: Record<AnimationPreset, Transition> = {
-  // Spatial layout flight from shelf to open book view
-  bookZoom: {
-    duration: SHARED_TRANSITION_DURATION,
-    ease: [0.4, 0, 0.2, 1], // Standard balanced ease-in-out
-  },
-  // Cover Opening: Gradual unhinge while expanding to stage
-  coverFlipOpen: {
-    duration: SHARED_TRANSITION_DURATION,
-    ease: [0.65, 0, 0.35, 1], // S-curve through -90deg
-  },
-  // Cover Closing: Snappy initial swing so cover shuts before spatial flight completes
-  coverFlipClosed: {
-    duration: SHARED_TRANSITION_DURATION * 0.6,
-    ease: [0.32, 0, 0.67, 0], // Ease-in: Starts rotating immediately on click
-  },
-  // Fast snappy flipping interior pages while reading
-  pageTurn: {
-    duration: 0.22,
-    ease: [0.45, 0, 0.2, 1],
-  },
-} as const
+// This one curve is the entire "book zoom + cover open" gesture. Having it as
+// a Transition allows more alignment than only aligning on duration.
+const OPEN_TRANSITION: Transition = {
+  duration: SHARED_TRANSITION_DURATION,
+  ease: [0.4, 0, 0.2, 1],
+}
 
-
-/**
- * Variants for cover flip open and close
- */
-const COVER_FLIP_VARIANTS: Variants = {
-  initial: {
-    rotateY: 0,
-  },
-  animate: {
-    rotateY: -180,
-    transition: {
-      duration: SHARED_TRANSITION_DURATION,
-      ease: [0.65, 0, 0.35, 1], // S-curve unhinge for opening
-    },
-  },
-  exit: {
-    rotateY: 0,
-    transition: {
-      duration: SHARED_TRANSITION_DURATION,
-      ease: [0.32, 0, 0.67, 0], // Snappy ease-in for closing
-    },
-  },
+// The close gesture is deliberately a different shape than open — the
+// cover should visually lead the shrink, then the book zooms back to the shelf
+const CLOSE_TRANSITION: Transition = {
+  duration: SHARED_TRANSITION_DURATION,
+  ease: [0.32, 0, 0.67, 0],
 }
 
 /**
- * Resolves a named animation preset and automatically sanitizes it 
- * for reduced-motion preferences.
+ * Returns the page flip transition sanitized for reduced motion
  */
-export function useTransition(preset: AnimationPreset): Transition {
+export function usePageFlipTransition(): Transition {
   if (useReducedMotion()) {
     return { duration: 0 }
   }
-  return TRANSITIONS[preset]
+
+  // Fast snappy flipping interior pages while reading
+  return {
+    duration: 0.22,
+    ease: [0.45, 0, 0.2, 1],
+  }
+}
+
+/**
+ * Layout flight transition variants for book open and close behavior
+ */
+export function useBookZoomVariants(): Variants {
+  const reduceMotion = useReducedMotion()
+
+  if (reduceMotion) {
+    return {
+      initial: {},
+      animate: { transition: { duration: 0 } },
+      exit: { transition: { duration: 0 } },
+    }
+  }
+
+  return {
+    initial: {},
+    animate: {
+      transition: OPEN_TRANSITION,
+    },
+    exit: {
+      transition: CLOSE_TRANSITION,
+    },
+  }
 }
 
 /**
@@ -80,23 +73,49 @@ export function useCoverFlipVariants(): Variants {
     }
   }
 
-  return COVER_FLIP_VARIANTS
+  return {
+    initial: {
+      rotateY: 0,
+    },
+    animate: {
+      rotateY: -180,
+      transition: OPEN_TRANSITION,
+    },
+    exit: {
+      rotateY: 0,
+      transition: CLOSE_TRANSITION,
+    },
+  }
 }
 
 /**
- * Backdrop / shell fade variants for modal overlays
+ * Backdrop / shell fade variants sanitized for reduced motion
  */
-export const MODAL_SHELL_VARIANTS: Variants = {
-  hidden: { 
-    opacity: 0,
-    pointerEvents: 'none',
-  },
-  visible: { 
-    opacity: 1,
-    pointerEvents: 'auto',
-  },
-  exit: { 
-    opacity: 0,
-    pointerEvents: 'none',
-  },
+export function useModalShellVariants(): Variants {
+  const reduceMotion = useReducedMotion()
+
+  if (reduceMotion) {
+    return {
+      hidden: { opacity: 0, pointerEvents: 'none' },
+      visible: { opacity: 1, pointerEvents: 'auto', transition: { duration: 0 } },
+      exit: { opacity: 0, pointerEvents: 'none', transition: { duration: 0 } },
+    }
+  }
+
+  return {
+    hidden: { 
+      opacity: 0, 
+      pointerEvents: 'none' 
+    },
+    visible: { 
+      opacity: 1, 
+      pointerEvents: 'auto',
+      transition: OPEN_TRANSITION,
+    },
+    exit: { 
+      opacity: 0, 
+      pointerEvents: 'none',
+      transition: CLOSE_TRANSITION,
+    },
+  }
 }
